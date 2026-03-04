@@ -1,22 +1,19 @@
 ---
-layout: default
+layout: page
 title: Research
 permalink: /research/
 ---
 
-# Research
+<section class="page-section">
+  <h1 class="page-title">Research</h1>
 
-<div class="card">
-## Working Paper Title
-Brief abstract-style summary of research contribution, methodology, dataset, and findings.
-</div>
+  <div class="card">
+    <h3>Fraud Detection Using Machine Learning</h3>
+    <p>Brief summary of your research, methodology, dataset, and findings.</p>
+  </div>
 
-<div class="card">
-## Conference / Journal Publication
-Add citation details here. Include venue name, year, and core contribution.
-</div>
-
-<div class="card">
-## Ongoing Research
-Summarize hypothesis, modeling framework, and expected impact.
-</div>
+  <div class="card">
+    <h3>Your Second Paper Title</h3>
+    <p>Add abstract, venue, year, and core contribution here.</p>
+  </div>
+</section>
