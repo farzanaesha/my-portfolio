@@ -15,8 +15,8 @@ title: Home
       and write about the things I learn along the way.
     </p>
     <div class="hero-cta">
-      <a href="/projects" class="btn btn-primary">View Projects</a>
-      <a href="/blog" class="btn btn-secondary">Read Blog</a>
+     <a href="{{ '/projects/' | relative_url }}" class="btn btn-primary">View Projects</a>
+     <a href="{{ '/blog/' | relative_url }}" class="btn btn-secondary">Read Blog</a>
     </div>
   </div>
   <div class="hero-visual">
