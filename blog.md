@@ -1,17 +1,13 @@
 ---
-layout: home
+layout: page
 title: Blog
 permalink: /blog/
 ---
 
-# Blog
-
-Here are my latest posts:
-
-<ul>
 {% for post in site.posts %}
-  <li>
-    <a href="{{ post.url }}">{{ post.title }}</a> - <small>{{ post.date | date: "%b %d, %Y" }}</small>
-  </li>
+  <article>
+    <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+    <time>{{ post.date | date: "%B %d, %Y" }}</time>
+    <p>{{ post.excerpt }}</p>
+  </article>
 {% endfor %}
-</ul>
