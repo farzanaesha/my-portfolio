@@ -2,6 +2,9 @@ title: Farzana Anjum Esha
 description: Data Scientist | ML Researcher | Fraud Detection
 theme: minima
 
+# Fix post URLs
+permalink: /blog/:year/:month/:day/:title/
+
 # Pages for header navigation
 header_pages:
   - index.md
