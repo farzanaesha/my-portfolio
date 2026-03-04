@@ -1,247 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Portfolio OS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <style>
-        :root {
-            --bg:#ffffff; --s1:#f8f8f8; --s2:#f0f0f0;
-            --b:#e0e0e0; --t:#111111; --td:#666666; --tf:#aaaaaa;
-            --r:3px; --sw:64px;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:var(--bg); color:var(--t); font-family:'Inter',sans-serif; font-size:13px; display: flex; height: 100vh; overflow: hidden; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research OS</title>
 
-        /* SIDEBAR */
-        .sidebar { width: var(--sw); border-right: 1px solid var(--b); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 15px; background: #fff; z-index: 100; }
-        .logo { font-family: 'Playfair Display'; font-size: 22px; margin-bottom: 20px; }
-        .nb { width: 40px; height: 40px; border: none; background: none; color: var(--tf); cursor: pointer; transition: 0.2s; border-radius: var(--r); }
-        .nb:hover { background: var(--s2); color: var(--t); }
-        .nb.on { background: var(--t); color: #fff; }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-        /* MAIN */
-        .main { flex: 1; overflow-y: auto; position: relative; }
-        .page { display: none; padding: 60px; max-width: 1200px; margin: 0 auto; animation: fIn 0.3s ease; }
-        .page.on { display: block; }
-        @keyframes fIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* TYPOGRAPHY */
-        .ey { font-family: 'JetBrains Mono'; font-size: 10px; color: var(--tf); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
-        .pt { font-family: 'Playfair Display'; font-size: 48px; margin-bottom: 30px; line-height: 1; }
-
-        /* CALCULATOR */
-        .calc-box { width: 320px; border: 1px solid var(--b); border-radius: 8px; overflow: hidden; }
-        .c-screen { background: var(--t); color: #fff; padding: 25px; text-align: right; font-family: 'JetBrains Mono'; font-size: 24px; min-height: 80px; word-break: break-all; }
-        .c-btns { display: grid; grid-template-columns: repeat(4, 1fr); }
-        .cb { padding: 20px; border: 0.1px solid var(--s2); background: #fff; cursor: pointer; font-family: 'JetBrains Mono'; transition: 0.1s; }
-        .cb:hover { background: var(--s1); }
-        .cb.op { background: var(--s1); color: var(--t); }
-        .cb.eq { background: var(--t); color: #fff; }
-
-        /* RESEARCH LAB & PDF */
-        .res-layout { display: grid; grid-template-columns: 1fr 320px; gap: 40px; height: 75vh; }
-        #pdf-view { border: 1px solid var(--b); background: #525659; overflow: auto; position: relative; }
-        #pdf-canvas-wrapper { position: relative; margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        #hl-layer { position: absolute; inset: 0; z-index: 10; cursor: text; }
-        .hl-rect { position: absolute; background: rgba(255, 235, 59, 0.4); mix-blend-mode: multiply; pointer-events: none; }
-        
-        /* RESEARCH FOLDER */
-        .folder { border-left: 1px solid var(--b); padding-left: 20px; overflow-y: auto; }
-        .snippet { padding: 15px; border: 1px solid var(--b); border-radius: var(--r); margin-bottom: 10px; transition: 0.2s; position: relative; }
-        .snippet:hover { border-color: var(--t); }
-        .snippet-text { color: var(--td); line-height: 1.5; font-size: 12px; }
-        .snippet-meta { font-family: 'JetBrains Mono'; font-size: 9px; color: var(--tf); margin-bottom: 5px; }
-        .del-btn { color: #c00; border: none; background: none; cursor: pointer; font-size: 10px; margin-top: 8px; }
-
-        /* BUTTONS */
-        .bp { background: var(--t); color: #fff; border: none; padding: 12px 24px; border-radius: var(--r); cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
-        .bp:hover { opacity: 0.9; }
-    </style>
+<style>
+body{
+    margin:0;
+    font-family:Inter,sans-serif;
+    display:flex;
+    height:100vh;
+}
+.sidebar{
+    width:220px;
+    border-right:1px solid #e0e0e0;
+    padding:20px;
+}
+.main{
+    flex:1;
+    display:flex;
+}
+.viewer{
+    flex:2;
+    border-right:1px solid #e0e0e0;
+    overflow:auto;
+    position:relative;
+}
+.research{
+    flex:1;
+    padding:20px;
+    overflow:auto;
+}
+canvas{
+    display:block;
+    margin:20px auto;
+}
+.hl-layer{
+    position:absolute;
+    inset:0;
+}
+.hl{
+    position:absolute;
+    background:rgba(255,235,59,0.4);
+}
+button{
+    padding:6px 10px;
+    margin-top:5px;
+}
+input{
+    width:100%;
+    padding:6px;
+    margin-top:5px;
+}
+.folder{
+    cursor:pointer;
+    padding:5px;
+    border:1px solid #ccc;
+    margin-top:5px;
+}
+.folder.active{
+    background:black;
+    color:white;
+}
+.snippet{
+    border:1px solid #ccc;
+    padding:8px;
+    margin-bottom:8px;
+}
+</style>
 </head>
+
 <body>
 
-<nav class="sidebar">
-    <div class="logo">P.</div>
-    <button class="nb on" onclick="nav('home')"><i class="fa-solid fa-house"></i></button>
-    <button class="nb" onclick="nav('calc')"><i class="fa-solid fa-calculator"></i></button>
-    <button class="nb" onclick="nav('research')"><i class="fa-solid fa-book-open"></i></button>
-</nav>
+<div class="sidebar">
+<h3>Folders</h3>
+<input id="folderName" placeholder="New Folder">
+<button onclick="createFolder()">Create</button>
+<div id="folderList"></div>
+
+<hr>
+
+<h3>Load PDF</h3>
+<input type="file" accept="application/pdf" onchange="loadDevicePDF(event)">
+<input id="pdfURL" placeholder="Paste PDF URL">
+<button onclick="loadURLPDF()">Load URL</button>
+</div>
 
 <div class="main">
-    <div class="page on" id="page-home">
-        <div class="ey">Welcome</div>
-        <h1 class="pt">Creative <br>Intelligence.</h1>
-        <p style="color: var(--td); max-width: 450px; margin-bottom: 30px; line-height: 1.7;">
-            A high-performance workspace for modern researchers and developers. Manage documents, calculate models, and build your digital legacy.
-        </p>
-        <button class="bp" onclick="nav('research')">Open Research Lab <i class="fa-solid fa-arrow-right"></i></button>
-    </div>
 
-    <div class="page" id="page-calc">
-        <div class="ey">Math Engine</div>
-        <h1 class="pt">Calculator</h1>
-        <div class="calc-box">
-            <div class="c-screen" id="c-res">0</div>
-            <div class="c-btns">
-                <button class="cb op" onclick="cIn('(')">(</button>
-                <button class="cb op" onclick="cIn(')')">)</button>
-                <button class="cb op" onclick="cClr()">C</button>
-                <button class="cb op" onclick="cIn('/')">/</button>
-                <button class="cb" onclick="cIn('7')">7</button>
-                <button class="cb" onclick="cIn('8')">8</button>
-                <button class="cb" onclick="cIn('9')">9</button>
-                <button class="cb op" onclick="cIn('*')">×</button>
-                <button class="cb" onclick="cIn('4')">4</button>
-                <button class="cb" onclick="cIn('5')">5</button>
-                <button class="cb" onclick="cIn('6')">6</button>
-                <button class="cb op" onclick="cIn('-')">-</button>
-                <button class="cb" onclick="cIn('1')">1</button>
-                <button class="cb" onclick="cIn('2')">2</button>
-                <button class="cb" onclick="cIn('3')">3</button>
-                <button class="cb op" onclick="cIn('+')">+</button>
-                <button class="cb" style="grid-column: span 2" onclick="cIn('0')">0</button>
-                <button class="cb" onclick="cIn('.')">.</button>
-                <button class="cb eq" onclick="cEq()">=</button>
-            </div>
-        </div>
-    </div>
+<div class="viewer" id="viewer">
+<div id="canvasWrapper" style="position:relative;">
+<canvas id="pdfCanvas"></canvas>
+<div class="hl-layer" id="hlLayer"></div>
+</div>
+</div>
 
-    <div class="page" id="page-research">
-        <div class="ey">Analysis Tool</div>
-        <h1 class="pt">Research Lab</h1>
-        
-        <div style="margin-bottom: 25px; display: flex; gap: 15px; align-items: center;">
-            <label class="bp" for="pdf-up"><i class="fa-solid fa-file-pdf"></i> Upload PDF</label>
-            <input type="file" id="pdf-up" hidden accept="application/pdf" onchange="loadPDF(event)">
-            <span id="file-name" style="font-family:'JetBrains Mono'; color:var(--tf); font-size:11px;">No active document</span>
-        </div>
+<div class="research">
+<h3>Research Notes</h3>
+<div id="notes"></div>
+</div>
 
-        <div class="res-layout">
-            <div id="pdf-view">
-                <div id="pdf-canvas-wrapper">
-                    <canvas id="pdf-render"></canvas>
-                    <div id="hl-layer"></div>
-                </div>
-            </div>
-            <div class="folder">
-                <div class="ey">Research Folder</div>
-                <div id="snippet-container"></div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
-    // 1. NAVIGATION SYSTEM
-    function nav(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
-        document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
-        document.getElementById('page-' + id).classList.add('on');
-        event?.currentTarget?.classList?.add('on');
-    }
 
-    // 2. CALCULATOR LOGIC
-    let expr = "";
-    function cIn(v) { expr += v; document.getElementById('c-res').innerText = expr; }
-    function cClr() { expr = ""; document.getElementById('c-res').innerText = "0"; }
-    function cEq() { 
-        try { expr = eval(expr).toString(); document.getElementById('c-res').innerText = expr; } 
-        catch { document.getElementById('c-res').innerText = "Error"; expr = ""; }
-    }
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    // 3. PDF & HIGHLIGHTER LOGIC
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    
-    let currentPdf = null;
-    let activeFile = "";
-    let snippets = JSON.parse(localStorage.getItem('snippets')) || [];
+let db;
+let activeFolder = null;
+let activeDoc = null;
+let pdfInstance = null;
 
-    async function loadPDF(e) {
-        const file = e.target.files[0];
-        if(!file) return;
-        activeFile = file.name;
-        document.getElementById('file-name').innerText = activeFile;
+const request = indexedDB.open("ResearchOS",1);
 
-        const reader = new FileReader();
-        reader.onload = async function() {
-            const data = new Uint8Array(this.result);
-            currentPdf = await pdfjsLib.getDocument(data).promise;
-            renderPDFPage(1);
-        };
-        reader.readAsArrayBuffer(file);
-    }
+request.onupgradeneeded = e=>{
+    db = e.target.result;
+    db.createObjectStore("folders",{keyPath:"id",autoIncrement:true});
+    db.createObjectStore("documents",{keyPath:"id",autoIncrement:true});
+    db.createObjectStore("highlights",{keyPath:"id",autoIncrement:true});
+};
 
-    async function renderPDFPage(num) {
-        const page = await currentPdf.getPage(num);
-        const viewport = page.getViewport({ scale: 1.5 });
-        const canvas = document.getElementById('pdf-render');
-        const ctx = canvas.getContext('2d');
+request.onsuccess = e=>{
+    db = e.target.result;
+    loadFolders();
+};
 
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+function createFolder(){
+    const name = document.getElementById("folderName").value;
+    if(!name) return;
+    const tx=db.transaction("folders","readwrite");
+    tx.objectStore("folders").add({name});
+    tx.oncomplete=loadFolders;
+}
 
-        initHighlighter(viewport);
-    }
-
-    function initHighlighter(viewport) {
-        const layer = document.getElementById('hl-layer');
-        layer.innerHTML = ""; // Clear old highlights UI
-        
-        layer.onmouseup = function() {
-            const sel = window.getSelection();
-            const text = sel.toString().trim();
-
-            if (text.length > 0) {
-                const range = sel.getRangeAt(0);
-                const rect = range.getBoundingClientRect();
-                const container = layer.getBoundingClientRect();
-
-                // Create Visual Highlight on PDF
-                const hl = document.createElement('div');
-                hl.className = 'hl-rect';
-                hl.style.left = (rect.left - container.left) + 'px';
-                hl.style.top = (rect.top - container.top) + 'px';
-                hl.style.width = rect.width + 'px';
-                hl.style.height = rect.height + 'px';
-                layer.appendChild(hl);
-
-                // Save to Folder
-                saveSnippet(text);
-            }
-        };
-    }
-
-    function saveSnippet(text) {
-        const item = { id: Date.now(), doc: activeFile, content: text, date: new Date().toLocaleDateString() };
-        snippets.push(item);
-        localStorage.setItem('snippets', JSON.stringify(snippets));
-        updateFolderUI();
-    }
-
-    function updateFolderUI() {
-        const container = document.getElementById('snippet-container');
-        container.innerHTML = snippets.map(s => `
-            <div class="snippet">
-                <div class="snippet-meta">${s.doc} • ${s.date}</div>
-                <div class="snippet-text">"${s.content}"</div>
-                <button class="del-btn" onclick="delSnippet(${s.id})">Remove</button>
-            </div>
+function loadFolders(){
+    const tx=db.transaction("folders","readonly");
+    const store=tx.objectStore("folders");
+    store.getAll().onsuccess=e=>{
+        const data=e.target.result;
+        const list=document.getElementById("folderList");
+        list.innerHTML=data.map(f=>`
+            <div class="folder ${activeFolder==f.id?'active':''}" onclick="selectFolder(${f.id})">${f.name}</div>
         `).join('');
-    }
+    };
+}
 
-    function delSnippet(id) {
-        snippets = snippets.filter(s => s.id !== id);
-        localStorage.setItem('snippets', JSON.stringify(snippets));
-        updateFolderUI();
-    }
+function selectFolder(id){
+    activeFolder=id;
+    loadFolders();
+    loadNotes();
+}
 
-    // Init UI
-    updateFolderUI();
+function loadDevicePDF(e){
+    const file=e.target.files[0];
+    if(!file) return;
+
+    const reader=new FileReader();
+    reader.onload=async function(){
+        const typed=new Uint8Array(this.result);
+        pdfInstance=await pdfjsLib.getDocument(typed).promise;
+        renderPage(1);
+        saveDocument(file.name,"device");
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+async function loadURLPDF(){
+    const url=document.getElementById("pdfURL").value;
+    if(!url) return;
+
+    pdfInstance=await pdfjsLib.getDocument(url).promise;
+    renderPage(1);
+    saveDocument(url,"url");
+}
+
+function saveDocument(source,type){
+    if(!activeFolder){
+        alert("Select a folder first");
+        return;
+    }
+    const tx=db.transaction("documents","readwrite");
+    tx.objectStore("documents").add({
+        folderId:activeFolder,
+        source,
+        type,
+        date:new Date().toISOString()
+    });
+    activeDoc=source;
+}
+
+async function renderPage(num){
+    const page=await pdfInstance.getPage(num);
+    const viewport=page.getViewport({scale:1.5});
+    const canvas=document.getElementById("pdfCanvas");
+    const ctx=canvas.getContext("2d");
+
+    canvas.width=viewport.width;
+    canvas.height=viewport.height;
+
+    await page.render({canvasContext:ctx,viewport}).promise;
+    initHighlighter();
+}
+
+function initHighlighter(){
+    const layer=document.getElementById("hlLayer");
+    layer.innerHTML="";
+    layer.onmouseup=function(){
+        const sel=window.getSelection();
+        const text=sel.toString().trim();
+        if(text.length>0){
+            const range=sel.getRangeAt(0);
+            const rect=range.getBoundingClientRect();
+            const container=layer.getBoundingClientRect();
+
+            const hl=document.createElement("div");
+            hl.className="hl";
+            hl.style.left=(rect.left-container.left)+"px";
+            hl.style.top=(rect.top-container.top)+"px";
+            hl.style.width=rect.width+"px";
+            hl.style.height=rect.height+"px";
+            layer.appendChild(hl);
+
+            saveHighlight(text);
+        }
+    };
+}
+
+function saveHighlight(text){
+    if(!activeFolder) return;
+
+    const tx=db.transaction("highlights","readwrite");
+    tx.objectStore("highlights").add({
+        folderId:activeFolder,
+        document:activeDoc,
+        content:text,
+        date:new Date().toISOString()
+    });
+    tx.oncomplete=loadNotes;
+}
+
+function loadNotes(){
+    if(!activeFolder) return;
+
+    const tx=db.transaction("highlights","readonly");
+    tx.objectStore("highlights").getAll().onsuccess=e=>{
+        const all=e.target.result;
+        const filtered=all.filter(h=>h.folderId===activeFolder);
+
+        document.getElementById("notes").innerHTML=
+            filtered.map(h=>`
+                <div class="snippet">
+                    <div>${h.content}</div>
+                    <small>${new Date(h.date).toLocaleString()}</small>
+                </div>
+            `).join('');
+    };
+}
+
 </script>
 
 </body>
