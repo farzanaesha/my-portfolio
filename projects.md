@@ -1,22 +1,21 @@
 ---
-layout: default
+layout: page
 title: Projects
 permalink: /projects/
 ---
 
-# Projects
 
-<div class="card">
-## Cost-Sensitive Fraud Detection System
-Designed cascade ML architectures using XGBoost and CatBoost to minimize financial loss under extreme class imbalance.
-</div>
+<section class="page-section">
+  <h1 class="page-title">Projects</h1>
 
-<div class="card">
-## Hybrid Boosting Architectures
-Experimented with LightGBM and AdaBoost to improve recall while controlling operational cost.
-</div>
+  <div class="card">
+    <h3>Project Name</h3>
+    <p>What it does, what tech you used, and what problem it solves.</p>
+    <a href="https://github.com/farzanaesha" class="read-more">View on GitHub →</a>
+  </div>
 
-<div class="card">
-## Data Analytics Dashboard
-Built an interactive KPI dashboard using Python and visualization libraries.
-</div>
+  <div class="card">
+    <h3>Another Project</h3>
+    <p>Description here.</p>
+  </div>
+</section>
