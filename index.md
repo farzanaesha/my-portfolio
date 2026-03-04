@@ -61,10 +61,10 @@ title: Home
       <time>{{ post.date | date: "%B %d, %Y" }}</time>
     </div>
     <h3 class="post-title">
-      <a href="{{ post.url }}">{{ post.title }}</a>
+      <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
     </h3>
     <p class="post-excerpt">{{ post.excerpt | strip_html | truncatewords: 20 }}</p>
-    <a href="{{ post.url }}" class="read-more">Read more →</a>
+    <a href="{{ post.url | relative_url }}" class="read-more">Read more →</a>
   </article>
   {% endfor %}
 
