@@ -2,7 +2,6 @@
 layout: post
 title: "Why Recall Matters More Than Accuracy in Fraud Detection"
 date: 2026-03-04
-permalink: /blog/:year/:month/:day/:title/
 ---
 
 In highly imbalanced datasets, accuracy can be misleading.  
