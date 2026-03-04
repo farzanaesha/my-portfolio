@@ -1,9 +1,9 @@
 <nav class="navbar">
-  <a href="/" class="nav-brand">Farzana Anjum Esha</a>
+  <a href="{{ '/' | relative_url }}" class="nav-brand">Farzana Anjum Esha</a>
   <div class="nav-links">
-    <a href="/">Home</a>
-    <a href="/projects/">Projects</a>
-    <a href="/research/">Research</a>
-    <a href="/blog/">Blog</a>
+    <a href="{{ '/' | relative_url }}">Home</a>
+    <a href="{{ '/projects/' | relative_url }}">Projects</a>
+    <a href="{{ '/research/' | relative_url }}">Research</a>
+    <a href="{{ '/blog/' | relative_url }}">Blog</a>
   </div>
 </nav>
