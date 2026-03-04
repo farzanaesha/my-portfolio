@@ -1,268 +1,2111 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Research OS</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<title>Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
 <style>
-body{
-    margin:0;
-    font-family:Inter,sans-serif;
-    display:flex;
-    height:100vh;
+:root {
+  --bg:#ffffff; --s1:#f8f8f8; --s2:#f0f0f0;
+  --b:#e0e0e0; --bd:#b0b0b0;
+  --t:#111111; --td:#666666; --tf:#aaaaaa;
+  --r:3px; --sw:56px;
 }
-.sidebar{
-    width:220px;
-    border-right:1px solid #e0e0e0;
-    padding:20px;
-}
-.main{
-    flex:1;
-    display:flex;
-}
-.viewer{
-    flex:2;
-    border-right:1px solid #e0e0e0;
-    overflow:auto;
-    position:relative;
-}
-.research{
-    flex:1;
-    padding:20px;
-    overflow:auto;
-}
-canvas{
-    display:block;
-    margin:20px auto;
-}
-.hl-layer{
-    position:absolute;
-    inset:0;
-}
-.hl{
-    position:absolute;
-    background:rgba(255,235,59,0.4);
-}
-button{
-    padding:6px 10px;
-    margin-top:5px;
-}
-input{
-    width:100%;
-    padding:6px;
-    margin-top:5px;
-}
-.folder{
-    cursor:pointer;
-    padding:5px;
-    border:1px solid #ccc;
-    margin-top:5px;
-}
-.folder.active{
-    background:black;
-    color:white;
-}
-.snippet{
-    border:1px solid #ccc;
-    padding:8px;
-    margin-bottom:8px;
-}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--t);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden;}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:var(--bg);border-right:1px solid var(--b);display:flex;flex-direction:column;align-items:center;padding:14px 0;z-index:200;gap:2px;}
+.logo{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--t);margin-bottom:18px;}
+.nb{width:36px;height:36px;border-radius:var(--r);border:none;background:transparent;color:var(--tf);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;position:relative;}
+.nb:hover{background:var(--s2);color:var(--t);}
+.nb.on{background:var(--t);color:#fff;}
+.nb::after{content:attr(data-label);position:absolute;left:44px;background:var(--t);color:#fff;border-radius:2px;padding:3px 7px;font-size:10px;font-family:'JetBrains Mono',monospace;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .1s;}
+.nb:hover::after{opacity:1;}
+
+/* MAIN */
+.main{margin-left:var(--sw);min-height:100vh;}
+.page{display:none;padding:44px 48px;min-height:100vh;animation:fu .2s ease;}
+.page.on{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* TYPOGRAPHY */
+.ey{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--tf);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+.pt{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;margin-bottom:28px;line-height:1.1;}
+
+/* BUTTONS */
+.bp{display:inline-flex;align-items:center;gap:5px;background:var(--t);color:#fff;border:none;border-radius:var(--r);padding:7px 15px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:opacity .15s;}
+.bp:hover{opacity:.8;}
+.bs{display:inline-flex;align-items:center;gap:5px;background:#fff;color:var(--t);border:1px solid var(--b);border-radius:var(--r);padding:7px 15px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:border-color .15s;}
+.bs:hover{border-color:var(--t);}
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:1000;display:none;align-items:center;justify-content:center;}
+.mo.on{display:flex;}
+.md{background:#fff;border:1px solid var(--b);border-radius:4px;padding:28px;width:500px;max-width:94vw;max-height:88vh;overflow-y:auto;box-shadow:0 6px 32px rgba(0,0,0,.1);animation:fu .2s ease;}
+.md h2{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:18px;}
+.fg{margin-bottom:12px;}
+.fg label{display:block;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.fg input,.fg textarea,.fg select{width:100%;background:#fff;border:1px solid var(--b);border-radius:var(--r);padding:7px 10px;color:var(--t);font-family:'Inter',sans-serif;font-size:12px;outline:none;transition:border-color .15s;resize:vertical;}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--t);}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ma{display:flex;gap:7px;justify-content:flex-end;margin-top:18px;}
+.mc{background:#fff;border:1px solid var(--b);border-radius:var(--r);padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;color:var(--td);}
+.mc:hover{border-color:var(--t);color:var(--t);}
+.ms{background:var(--t);border:none;border-radius:var(--r);padding:7px 18px;color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;}
+.ms:hover{opacity:.8;}
+
+/* ══ ABOUT ══ */
+.hw{max-width:660px;padding-top:10px;}
+.hg{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tf);margin-bottom:12px;letter-spacing:2px;}
+.hn{font-family:'Playfair Display',serif;font-size:58px;font-weight:700;line-height:.98;margin-bottom:16px;}
+.hn .it{font-style:italic;}
+.hb{font-size:15px;color:var(--td);line-height:1.75;max-width:500px;margin-bottom:24px;}
+.ha{display:flex;gap:8px;flex-wrap:wrap;}
+.sr{display:flex;gap:36px;margin-top:44px;flex-wrap:wrap;border-top:1px solid var(--b);padding-top:24px;}
+.sv{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;}
+.sl{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--tf);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.sw2{margin-top:32px;}
+.sw2 h3{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--tf);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.st{display:flex;flex-wrap:wrap;gap:5px;}
+.stag{padding:3px 8px;border:1px solid var(--b);border-radius:2px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--td);}
+.stag:hover{border-color:var(--t);color:var(--t);cursor:default;}
+.epb{margin-top:20px;background:none;border:1px dashed var(--b);border-radius:var(--r);padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tf);cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.epb:hover{border-color:var(--t);color:var(--t);}
+
+/* ══ PORTFOLIO ══ */
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1px;border:1px solid var(--b);}
+.pc{background:#fff;padding:22px;cursor:pointer;transition:background .12s;position:relative;border-right:1px solid var(--b);border-bottom:1px solid var(--b);}
+.pc:hover{background:var(--s1);}
+.cc{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--tf);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.ct{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;margin-bottom:7px;}
+.cd{font-size:12px;color:var(--td);line-height:1.6;margin-bottom:12px;}
+.ctc{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:12px;}
+.ttag{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--td);border:1px solid var(--b);padding:1px 5px;border-radius:2px;}
+.cl2{display:flex;gap:6px;}
+.cl2 a,.cl2 button{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--t);text-decoration:none;border:1px solid var(--b);padding:3px 7px;border-radius:2px;background:none;cursor:pointer;transition:all .12s;}
+.cl2 a:hover,.cl2 button:hover{background:var(--t);color:#fff;border-color:var(--t);}
+.cy{position:absolute;top:14px;right:14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--tf);}
+.es{padding:52px;text-align:center;color:var(--tf);font-family:'JetBrains Mono',monospace;font-size:11px;}
+
+/* ══ CALCULATOR ══ */
+.cw{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;justify-content:center;}
+.calc{width:320px;border:1px solid var(--b);border-radius:4px;overflow:hidden;}
+.cdis{background:var(--t);color:#fff;padding:18px 16px 14px;min-height:82px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-end;}
+.cexpr{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.35);min-height:14px;text-align:right;margin-bottom:3px;}
+.cres{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:300;text-align:right;word-break:break-all;}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);}
+.cb{height:48px;border:none;border-right:1px solid var(--b);border-bottom:1px solid var(--b);font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;background:#fff;color:var(--t);transition:background .1s;}
+.cb:hover{background:var(--s1);}
+.cb:active{background:var(--s2);transform:scale(.95);}
+.cb.op{color:var(--td);}
+.cb.fn{font-size:10px;color:var(--td);background:var(--s1);}
+.cb.fn:hover{background:var(--s2);}
+.cb.ceq{background:var(--t);color:#fff;font-size:16px;}
+.cb.ceq:hover{background:#333;}
+.cb.ccl{color:#c00;}
+.cb.sp2{grid-column:span 2;}
+.chist{width:220px;border:1px solid var(--b);border-radius:4px;overflow:hidden;max-height:440px;display:flex;flex-direction:column;}
+.chh{padding:10px 14px;border-bottom:1px solid var(--b);font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--tf);letter-spacing:2px;text-transform:uppercase;background:var(--s1);}
+.chb{overflow-y:auto;flex:1;}
+.hi{padding:8px 14px;border-bottom:1px solid var(--b);text-align:right;}
+.hex{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--tf);}
+.hre{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;}
+
+/* ══ FLOWCHART ══ */
+.fca{display:flex;flex-direction:column;height:calc(100vh - 140px);border:1px solid var(--b);border-radius:3px;overflow:hidden;background:#fff;}
+.fct{background:var(--s1);border-bottom:1px solid var(--b);padding:7px 12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.fsep{width:1px;height:22px;background:var(--b);margin:0 3px;flex-shrink:0;}
+.ftb{height:28px;padding:0 9px;border:1px solid var(--b);border-radius:var(--r);background:#fff;color:var(--td);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;transition:all .12s;}
+.ftb:hover{border-color:var(--t);color:var(--t);}
+.ftb.on{background:var(--t);color:#fff;border-color:var(--t);}
+.ftb.danger{color:#c00;border-color:#c00;}
+.ftb.danger:hover{background:#c00;color:#fff;}
+.fcb{display:flex;flex:1;overflow:hidden;}
+.fsh{width:150px;background:var(--s1);border-right:1px solid var(--b);padding:10px;overflow-y:auto;flex-shrink:0;}
+.fsh h4{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--tf);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.srow{display:flex;align-items:center;gap:7px;padding:6px 7px;border:1px solid transparent;border-radius:var(--r);cursor:grab;margin-bottom:2px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--td);user-select:none;transition:all .12s;}
+.srow:hover{border-color:var(--b);background:#fff;color:var(--t);}
+.srow svg{width:34px;height:20px;flex-shrink:0;}
+.fcw{flex:1;position:relative;overflow:hidden;background:#fff;}
+.fcc{position:absolute;inset:0;background-color:#fff;background-image:linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px);background-size:20px 20px;}
+/* NODES: black border, transparent bg, black text */
+.fn{position:absolute;min-width:100px;min-height:38px;display:flex;align-items:center;justify-content:center;cursor:move;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:#000;text-align:center;padding:7px 12px;user-select:none;border:2px solid #000;background:transparent;z-index:10;transition:box-shadow .12s;}
+.fn.sel{box-shadow:0 0 0 3px rgba(0,0,0,.18);}
+.fn .nl{pointer-events:none;word-break:break-word;}
+.fn.process{border-radius:0;}
+.fn.terminal{border-radius:50px;}
+.fn.decision{clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);min-width:120px;min-height:72px;}
+.fn.io{clip-path:polygon(12% 0%,100% 0%,88% 100%,0% 100%);}
+.fn.data{border-style:dashed;}
+.fn.subprocess{border-radius:0;}
+.fn.predefined{border-radius:0;}
+svg.fsvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;}
+.fpr{width:190px;background:var(--s1);border-left:1px solid var(--b);padding:12px;overflow-y:auto;flex-shrink:0;}
+.fpr h4{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--tf);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.pg2{margin-bottom:8px;}
+.pg2 label{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--td);display:block;margin-bottom:3px;}
+.pg2 input,.pg2 select{width:100%;background:#fff;border:1px solid var(--b);border-radius:var(--r);padding:5px 7px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t);outline:none;}
+.pg2 input:focus,.pg2 select:focus{border-color:var(--t);}
+.ph2{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--tf);text-align:center;padding:14px 0;}
+
+/* ══ PLANNER ══ */
+.pl{display:grid;grid-template-columns:268px 1fr;gap:20px;height:calc(100vh - 140px);}
+.pls{display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+.mcal{border:1px solid var(--b);border-radius:3px;overflow:hidden;}
+.mch{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--b);background:var(--s1);}
+.mch span{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;}
+.mcn{background:none;border:none;color:var(--td);cursor:pointer;width:22px;height:22px;border-radius:2px;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.mcn:hover{background:var(--s2);color:var(--t);}
+.mcgrid{display:grid;grid-template-columns:repeat(7,1fr);padding:6px;gap:2px;}
+.mcdl{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--tf);text-align:center;padding:3px 0;}
+.mcd{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--td);text-align:center;padding:4px 0;border-radius:2px;cursor:pointer;transition:all .12s;position:relative;}
+.mcd:hover{background:var(--s2);color:var(--t);}
+.mcd.tod{background:var(--t);color:#fff;font-weight:600;}
+.mcd.sel:not(.tod){background:var(--s2);color:var(--t);font-weight:600;}
+.mcd.has::after{content:'';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:#000;}
+.mcd.om{opacity:.22;}
+.qa{border:1px solid var(--b);border-radius:3px;overflow:hidden;}
+.qah{padding:9px 12px;background:var(--s1);border-bottom:1px solid var(--b);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--td);}
+.qab{padding:12px;}
+.qab input,.qab select{width:100%;border:1px solid var(--b);border-radius:2px;padding:6px 9px;font-family:'Inter',sans-serif;font-size:12px;color:var(--t);background:#fff;outline:none;margin-bottom:7px;}
+.qab input:focus,.qab select:focus{border-color:var(--t);}
+.tr{display:flex;gap:6px;}
+.qabtn{width:100%;background:var(--t);color:#fff;border:none;border-radius:2px;padding:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;margin-top:3px;}
+.qabtn:hover{opacity:.85;}
+.pm{border:1px solid var(--b);border-radius:3px;display:flex;flex-direction:column;overflow:hidden;background:#fff;}
+.pmh{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--b);background:var(--s1);}
+.pmt{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;}
+.ptabs{display:flex;gap:2px;}
+.ptb{padding:4px 10px;border:1px solid transparent;border-radius:2px;background:none;color:var(--tf);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;transition:all .12s;letter-spacing:1px;}
+.ptb:hover{color:var(--t);border-color:var(--b);}
+.ptb.on{background:var(--t);color:#fff;border-color:var(--t);}
+.tb{flex:1;overflow-y:auto;padding:14px 18px;}
+.ti{display:flex;align-items:flex-start;gap:8px;padding:10px;border:1px solid var(--b);border-radius:2px;margin-bottom:7px;background:#fff;position:relative;transition:border-color .12s;}
+.ti:hover{border-color:var(--td);}
+.ti.done{opacity:.4;}
+.ti.done .tit{text-decoration:line-through;}
+.ti.overdue{border-color:#c00;}
+.tpb{width:3px;align-self:stretch;border-radius:2px;flex-shrink:0;}
+.pu .tpb{background:#c00;}
+.pn .tpb{background:#888;}
+.pl2 .tpb{background:#ccc;}
+.tch{width:17px;height:17px;border:1.5px solid var(--bd);border-radius:2px;background:none;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .12s;}
+.tch:hover{border-color:var(--t);}
+.tch.chk{background:var(--t);border-color:var(--t);color:#fff;}
+.tbd{flex:1;min-width:0;}
+.tit{font-size:13px;font-weight:500;margin-bottom:2px;}
+.tme{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.tml{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--tf);}
+.tpr{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:1px 4px;border-radius:2px;border:1px solid var(--b);}
+.tde{background:none;border:none;cursor:pointer;color:var(--tf);font-size:10px;padding:2px 4px;border-radius:2px;opacity:0;transition:all .12s;}
+.ti:hover .tde{opacity:1;}
+.tde:hover{background:var(--s2);color:#c00;}
+.rd{position:absolute;top:8px;right:8px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--tf);}
+
+/* toast */
+#toast-container{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:9000;}
+.tst{background:#fff;border:1px solid var(--b);border-radius:3px;padding:12px 16px;box-shadow:0 3px 16px rgba(0,0,0,.09);max-width:280px;animation:fu .2s ease;position:relative;}
+.tst-h{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--tf);margin-bottom:3px;text-transform:uppercase;}
+.tst-t{font-size:13px;font-weight:600;margin-bottom:2px;}
+.tst-s{font-size:11px;color:var(--td);font-family:'JetBrains Mono',monospace;}
+.tst-c{position:absolute;top:7px;right:9px;background:none;border:none;color:var(--tf);cursor:pointer;font-size:12px;}
+
+/* ══ RESEARCH ══ */
+.rtb{display:flex;align-items:center;gap:7px;margin-bottom:20px;flex-wrap:wrap;}
+.rsearch{margin-left:auto;border:1px solid var(--b);border-radius:2px;padding:6px 11px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t);background:#fff;outline:none;width:180px;}
+.rsearch:focus{border-color:var(--t);}
+.rbc{display:flex;align-items:center;gap:5px;margin-bottom:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tf);}
+.rbc span{cursor:pointer;}
+.rbc span:hover{color:var(--t);}
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(182px,1fr));gap:1px;border:1px solid var(--b);}
+.rc{background:#fff;padding:16px 14px;cursor:pointer;transition:background .12s;border-right:1px solid var(--b);border-bottom:1px solid var(--b);position:relative;min-height:96px;display:flex;flex-direction:column;gap:5px;}
+.rc:hover{background:var(--s1);}
+.rci{font-size:20px;margin-bottom:1px;}
+.rcn{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;line-height:1.3;}
+.rcm{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--tf);}
+.rcd{font-size:11px;color:var(--td);line-height:1.5;}
+.rca{position:absolute;top:7px;right:7px;display:flex;gap:2px;opacity:0;transition:opacity .12s;}
+.rc:hover .rca{opacity:1;}
+.ra{background:#fff;border:1px solid var(--b);border-radius:2px;cursor:pointer;padding:2px 5px;font-size:9px;color:var(--td);}
+.ra:hover{border-color:var(--t);color:var(--t);}
+.ra.del:hover{border-color:#c00;color:#c00;}
+.rtags{display:flex;flex-wrap:wrap;gap:2px;margin-top:auto;}
+.rtag{font-size:8px;font-family:'JetBrains Mono',monospace;padding:1px 4px;border:1px solid var(--b);border-radius:1px;color:var(--td);}
+.rtyp{font-size:8px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--tf);border:1px solid var(--b);padding:1px 5px;border-radius:1px;display:inline-block;}
+.rbk{background:none;border:1px solid var(--b);border-radius:2px;padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--td);cursor:pointer;display:inline-flex;align-items:center;gap:4px;margin-bottom:16px;}
+.rbk:hover{border-color:var(--t);color:var(--t);}
+.rv{max-width:700px;}
+.rv h2{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:7px;}
+.rv pre{background:var(--s1);border:1px solid var(--b);border-radius:2px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;max-height:360px;overflow-y:auto;line-height:1.7;margin-top:10px;color:var(--td);}
+.rnv{font-size:14px;line-height:1.8;color:var(--t);white-space:pre-wrap;margin-top:10px;}
+
+/* upload */
+.uz{border:2px dashed var(--b);border-radius:3px;padding:24px;text-align:center;cursor:pointer;transition:border-color .15s;margin-bottom:12px;}
+.uz:hover{border-color:var(--t);}
+.uzl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--td);margin-top:7px;}
+.usrc{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;}
+.usb{flex:1;min-width:90px;border:1px solid var(--b);border-radius:2px;padding:9px 7px;text-align:center;cursor:pointer;background:#fff;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--td);transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.usb:hover{border-color:var(--t);color:var(--t);}
+.usb.sel{background:var(--t);color:#fff;border-color:var(--t);}
+.usb i{font-size:16px;}
+.ufi{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--td);min-height:16px;margin-top:4px;}
+
+/* paper search tabs */
+.ps-tab{background:none;border:none;border-bottom:2px solid transparent;padding:7px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#aaa;cursor:pointer;transition:all .12s;margin-bottom:-1px;}
+.ps-tab:hover{color:#111;}
+.ps-tab.on{color:#111;border-bottom-color:#111;font-weight:600;}
+
+/* paper result card */
+.pr-card{border:1px solid #e0e0e0;border-radius:3px;padding:16px;margin-bottom:10px;background:#fff;transition:border-color .12s;}
+.pr-card:hover{border-color:#111;}
+.pr-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:5px;line-height:1.35;color:#111;}
+.pr-authors{font-size:11px;font-family:'JetBrains Mono',monospace;color:#666;margin-bottom:4px;}
+.pr-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;align-items:center;}
+.pr-badge{font-size:9px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:2px;border:1px solid #e0e0e0;color:#888;}
+.pr-badge.open{border-color:#22a06b;color:#22a06b;}
+.pr-badge.pdf{border-color:#0057cc;color:#0057cc;cursor:pointer;}
+.pr-badge.pdf:hover{background:#0057cc;color:#fff;}
+.pr-abstract{font-size:12px;color:#666;line-height:1.65;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.pr-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.pr-btn{font-size:10px;font-family:'JetBrains Mono',monospace;padding:4px 10px;border:1px solid #e0e0e0;border-radius:2px;background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;color:#333;transition:all .12s;}
+.pr-btn:hover{border-color:#111;color:#111;}
+.pr-btn.primary{background:#111;color:#fff;border-color:#111;}
+.pr-btn.primary:hover{opacity:.8;}
+
+/* pdf highlight layer */
+#hl-layer{position:absolute;inset:0;pointer-events:none;z-index:20;}
+.hl-rect{position:absolute;border-radius:2px;opacity:.4;mix-blend-mode:multiply;cursor:pointer;pointer-events:all;}
+.hl-rect:hover{opacity:.7;}
+
+/* pdf.js text layer — spans must be invisible (selection only) */
+.pdfjs-text-layer{position:absolute;top:0;left:0;overflow:hidden;line-height:1;}
+.pdfjs-text-layer span,.pdfjs-text-layer br{color:transparent!important;position:absolute;white-space:pre;transform-origin:0% 0%;}
+.pdfjs-text-layer ::selection{background:rgba(0,100,255,.25);}
 </style>
 </head>
-
 <body>
 
-<div class="sidebar">
-<h3>Folders</h3>
-<input id="folderName" placeholder="New Folder">
-<button onclick="createFolder()">Create</button>
-<div id="folderList"></div>
-
-<hr>
-
-<h3>Load PDF</h3>
-<input type="file" accept="application/pdf" onchange="loadDevicePDF(event)">
-<input id="pdfURL" placeholder="Paste PDF URL">
-<button onclick="loadURLPDF()">Load URL</button>
-</div>
+<nav class="sidebar">
+  <div class="logo">P.</div>
+  <button class="nb on"  data-page="about"    data-label="About"      onclick="nav(this)"><i class="fa-solid fa-house"></i></button>
+  <button class="nb"     data-page="portfolio" data-label="Portfolio"  onclick="nav(this)"><i class="fa-solid fa-briefcase"></i></button>
+  <button class="nb"     data-page="calc"      data-label="Calculator" onclick="nav(this)"><i class="fa-solid fa-calculator"></i></button>
+  <button class="nb"     data-page="flow"      data-label="Flowchart"  onclick="nav(this)"><i class="fa-solid fa-diagram-project"></i></button>
+  <button class="nb"     data-page="planner"   data-label="Planner"   onclick="nav(this)"><i class="fa-solid fa-calendar-check"></i></button>
+  <button class="nb"     data-page="research"  data-label="Research"  onclick="nav(this)"><i class="fa-solid fa-folder-open"></i></button>
+</nav>
 
 <div class="main">
 
-<div class="viewer" id="viewer">
-<div id="canvasWrapper" style="position:relative;">
-<canvas id="pdfCanvas"></canvas>
-<div class="hl-layer" id="hlLayer"></div>
+<!-- ABOUT -->
+<div class="page on" id="page-about">
+  <div class="hw">
+    <div class="hg">HELLO, WORLD</div>
+    <div class="hn" id="hname">Your<br><span class="it">Name Here</span></div>
+    <div class="hb" id="hbio">Full-stack developer and designer passionate about crafting exceptional digital experiences that sit at the intersection of technology and craft.</div>
+    <div class="ha">
+      <button class="bp" onclick="nav(document.querySelector('[data-page=portfolio]'))">View Projects</button>
+      <a class="bs" id="hemail" href="/cdn-cgi/l/email-protection#0970667c496c64686065276a6664">Get in Touch</a>
+    </div>
+    <div class="sr">
+      <div><div class="sv" id="hprojects">0</div><div class="sl">Projects</div></div>
+      <div><div class="sv" id="hexp">3+</div><div class="sl">Years Exp.</div></div>
+      <div><div class="sv" id="hclients">20+</div><div class="sl">Clients</div></div>
+    </div>
+    <div class="sw2">
+      <h3>Skills &amp; Tools</h3>
+      <div class="st" id="hskills">
+        <span class="stag">JavaScript</span><span class="stag">React</span><span class="stag">Node.js</span><span class="stag">Python</span><span class="stag">CSS</span><span class="stag">Git</span>
+      </div>
+    </div>
+    <button class="epb" onclick="openHeroEdit()"><i class="fa-solid fa-pen"></i> Edit Profile</button>
+  </div>
 </div>
+
+<!-- PORTFOLIO -->
+<div class="page" id="page-portfolio">
+  <div class="ey">// Work</div>
+  <div class="pt">Portfolio</div>
+  <button class="bp" onclick="openAddProject()" style="margin-bottom:18px"><i class="fa-solid fa-plus"></i> Add Project</button>
+  <div class="pg" id="proj-grid"><div class="es" id="proj-empty">No projects yet. Add your first one.</div></div>
 </div>
 
-<div class="research">
-<h3>Research Notes</h3>
-<div id="notes"></div>
+<!-- CALCULATOR -->
+<div class="page" id="page-calc">
+  <div class="ey">// Tools</div>
+  <div class="pt">Scientific Calculator</div>
+  <div class="cw">
+    <div class="calc">
+      <div class="cdis">
+        <div class="cexpr" id="cexpr"></div>
+        <div class="cres" id="cres">0</div>
+      </div>
+      <div class="cgrid">
+        <button class="cb fn" onclick="ci('Math.sin(')">sin</button>
+        <button class="cb fn" onclick="ci('Math.cos(')">cos</button>
+        <button class="cb fn" onclick="ci('Math.tan(')">tan</button>
+        <button class="cb fn" onclick="ci('Math.log10(')">log</button>
+        <button class="cb fn" onclick="ci('Math.sqrt(')">√x</button>
+        <button class="cb fn" onclick="ci('Math.pow(')">xⁿ</button>
+        <button class="cb fn" onclick="ci('Math.PI')">π</button>
+        <button class="cb fn" onclick="ci('Math.E')">e</button>
+        <button class="cb ccl" onclick="cc()">C</button>
+        <button class="cb ccl" onclick="cd()">⌫</button>
+        <button class="cb op"  onclick="ci('%')">%</button>
+        <button class="cb op"  onclick="ci('/')">÷</button>
+        <button class="cb"     onclick="ci('7')">7</button>
+        <button class="cb"     onclick="ci('8')">8</button>
+        <button class="cb"     onclick="ci('9')">9</button>
+        <button class="cb op"  onclick="ci('*')">×</button>
+        <button class="cb"     onclick="ci('4')">4</button>
+        <button class="cb"     onclick="ci('5')">5</button>
+        <button class="cb"     onclick="ci('6')">6</button>
+        <button class="cb op"  onclick="ci('-')">−</button>
+        <button class="cb"     onclick="ci('1')">1</button>
+        <button class="cb"     onclick="ci('2')">2</button>
+        <button class="cb"     onclick="ci('3')">3</button>
+        <button class="cb op"  onclick="ci('+')">+</button>
+        <button class="cb"     onclick="ci('(')">( </button>
+        <button class="cb"     onclick="ci('0')">0</button>
+        <button class="cb"     onclick="ci('.')">.</button>
+        <button class="cb ceq" onclick="ceq()">=</button>
+        <button class="cb fn sp2" onclick="ci(')')">)  close</button>
+        <button class="cb fn sp2" onclick="ci('Math.abs(')">|x|  abs</button>
+      </div>
+    </div>
+    <div class="chist">
+      <div class="chh">History</div>
+      <div class="chb" id="chb"><div class="es" style="padding:18px;font-size:10px">No calculations yet</div></div>
+    </div>
+  </div>
 </div>
 
+<!-- FLOWCHART -->
+<div class="page" id="page-flow">
+  <div class="ey" style="margin-bottom:3px">// Tools</div>
+  <div class="pt" style="margin-bottom:10px">Flowchart Builder</div>
+  <div class="fca">
+    <div class="fct">
+      <button class="ftb danger" onclick="clearCanvas()"><i class="fa-solid fa-trash"></i> Clear</button>
+      <button class="ftb" onclick="fcExportSVG()"><i class="fa-solid fa-image"></i> SVG</button>
+      <button class="ftb" onclick="fcExportXML()"><i class="fa-solid fa-code"></i> XML</button>
+      <button class="ftb" onclick="fcSaveRes()" style="font-weight:600"><i class="fa-solid fa-folder-plus"></i> → Research</button>
+      <div class="fsep"></div>
+      <button class="ftb" id="connbtn" onclick="toggleConn()"><i class="fa-solid fa-link"></i> Connect</button>
+      <button class="ftb" onclick="fcDel()"><i class="fa-solid fa-xmark"></i> Delete</button>
+      <div class="fsep"></div>
+      <button class="ftb" onclick="fcQ('terminal','Start')">Start/End</button>
+      <button class="ftb" onclick="fcQ('process','Process')">Process</button>
+      <button class="ftb" onclick="fcQ('decision','Decision?')">Decision</button>
+      <button class="ftb" onclick="fcQ('io','Input/Output')">I/O</button>
+      <button class="ftb" onclick="fcQ('subprocess','Sub-Process')">Sub-Process</button>
+      <button class="ftb" onclick="fcQ('predefined','Predefined')">Predefined</button>
+    </div>
+    <div class="fcb">
+      <div class="fsh">
+        <h4>Drag to Canvas</h4>
+        <div class="srow" draggable="true" ondragstart="fds(event,'terminal')">
+          <svg viewBox="0 0 60 24"><rect x="1" y="1" width="58" height="22" rx="11" fill="none" stroke="#000" stroke-width="2"/></svg>Terminal
+        </div>
+        <div class="srow" draggable="true" ondragstart="fds(event,'process')">
+          <svg viewBox="0 0 60 24"><rect x="1" y="1" width="58" height="22" fill="none" stroke="#000" stroke-width="2"/></svg>Process
+        </div>
+        <div class="srow" draggable="true" ondragstart="fds(event,'decision')">
+          <svg viewBox="0 0 60 34"><polygon points="30,2 58,17 30,32 2,17" fill="none" stroke="#000" stroke-width="2"/></svg>Decision
+        </div>
+        <div class="srow" draggable="true" ondragstart="fds(event,'io')">
+          <svg viewBox="0 0 60 24"><polygon points="8,1 59,1 52,23 1,23" fill="none" stroke="#000" stroke-width="2"/></svg>Input/Output
+        </div>
+        <div class="srow" draggable="true" ondragstart="fds(event,'data')">
+          <svg viewBox="0 0 60 24"><rect x="1" y="1" width="58" height="22" fill="none" stroke="#000" stroke-width="2" stroke-dasharray="5,3"/></svg>Data Store
+        </div>
+        <div class="srow" draggable="true" ondragstart="fds(event,'subprocess')">
+          <svg viewBox="0 0 60 24"><rect x="1" y="1" width="58" height="22" fill="none" stroke="#000" stroke-width="2"/><line x1="8" y1="1" x2="8" y2="23" stroke="#000" stroke-width="2"/><line x1="52" y1="1" x2="52" y2="23" stroke="#000" stroke-width="2"/></svg>Sub-Process
+        </div>
+        <div class="srow" draggable="true" ondragstart="fds(event,'predefined')">
+          <svg viewBox="0 0 60 24"><rect x="1" y="1" width="58" height="22" fill="none" stroke="#000" stroke-width="2"/><line x1="10" y1="1" x2="10" y2="23" stroke="#000" stroke-width="2"/><line x1="50" y1="1" x2="50" y2="23" stroke="#000" stroke-width="2"/></svg>Predefined
+        </div>
+      </div>
+      <div class="fcw" id="fcw" ondragover="event.preventDefault()" ondrop="fdrop(event)">
+        <div class="fcc" id="fcc" onclick="fcClick(event)">
+          <svg class="fsvg" id="fsvg">
+            <defs>
+              <marker id="arr" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+                <polygon points="0 0,7 3,0 6" fill="#000"/>
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </div>
+      <div class="fpr">
+        <h4>Properties</h4>
+        <div id="fprb"><div class="ph2">Select a node</div></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<script>
+<!-- PLANNER -->
+<div class="page" id="page-planner">
+  <div class="ey">// Productivity</div>
+  <div class="pt">Day Planner</div>
+  <div class="pl">
+    <div class="pls">
+      <div class="mcal">
+        <div class="mch">
+          <button class="mcn" onclick="calNav(-1)">‹</button>
+          <span id="callbl"></span>
+          <button class="mcn" onclick="calNav(1)">›</button>
+        </div>
+        <div class="mcgrid" id="calgrid"></div>
+      </div>
+      <div class="qa">
+        <div class="qah">Add Task</div>
+        <div class="qab">
+          <input type="text"   id="tt"  placeholder="Task title…">
+          <div class="tr">
+            <input type="time" id="ttime" style="flex:1">
+            <input type="date" id="tdate" style="flex:1">
+          </div>
+          <select id="tpri">
+            <option value="pu">🔴 Urgent</option>
+            <option value="pn" selected>🟡 Normal</option>
+            <option value="pl2">🟢 Low</option>
+          </select>
+          <input type="text" id="tdesc" placeholder="Notes (optional)…">
+          <button class="qabtn" onclick="addTask()">+ Add Task</button>
+        </div>
+      </div>
+    </div>
+    <div class="pm">
+      <div class="pmh">
+        <div class="pmt" id="plandlbl">Today</div>
+        <div class="ptabs">
+          <button class="ptb on" onclick="planV('day',this)">Day</button>
+          <button class="ptb" onclick="planV('all',this)">All</button>
+          <button class="ptb" onclick="planV('done',this)">Done</button>
+        </div>
+      </div>
+      <div class="tb" id="tasksbody"></div>
+    </div>
+  </div>
+</div>
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+<!-- RESEARCH -->
+<div class="page" id="page-research">
+  <div class="ey">// Knowledge</div>
+  <div class="pt">Research Files</div>
+  <div class="rtb">
+    <button class="bp" onclick="openFolderModal()"><i class="fa-solid fa-folder-plus"></i> New Folder</button>
+    <button class="bs" onclick="openNoteModal()"><i class="fa-solid fa-file-lines"></i> New Note</button>
+    <button class="bs" onclick="openUploadModal()"><i class="fa-solid fa-upload"></i> Upload / Import</button>
+    <button class="bs" onclick="openPaperSearch()" style="border-color:#000;font-weight:600"><i class="fa-solid fa-magnifying-glass-arrow-right"></i> Search Papers</button>
+    <input class="rsearch" type="text" id="rsearch" placeholder="Search files…" oninput="renderRes()">
+  </div>
+  <div class="rbc" id="rbc"></div>
+  <div id="rcontent"></div>
+</div>
 
-let db;
-let activeFolder = null;
-let activeDoc = null;
-let pdfInstance = null;
+<!-- UNIFIED DOC VIEWER PANEL -->
+<div id="pdf-panel" style="display:none;position:fixed;inset:0;left:var(--sw);background:#fff;z-index:500;flex-direction:column;">
+  <!-- Toolbar -->
+  <div id="pdf-toolbar" style="background:#f8f8f8;border-bottom:1px solid #e0e0e0;padding:7px 14px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;flex-shrink:0;">
+    <button onclick="closeDocViewer()" style="background:none;border:1px solid #e0e0e0;border-radius:3px;padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><i class="fa-solid fa-arrow-left"></i> Back</button>
+    <div style="width:1px;height:20px;background:#e0e0e0;margin:0 2px;flex-shrink:0;"></div>
+    <button id="hlbtn" onclick="toggleHighlight()" style="background:none;border:1px solid #e0e0e0;border-radius:3px;padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><i class="fa-solid fa-highlighter"></i> Highlight</button>
+    <select id="hl-color" style="border:1px solid #e0e0e0;border-radius:3px;padding:4px 6px;font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;cursor:pointer;">
+      <option value="#FFE066">🟡 Yellow</option>
+      <option value="#A8F0C6">🟢 Green</option>
+      <option value="#F0A8A8">🔴 Red</option>
+      <option value="#A8C8F0">🔵 Blue</option>
+    </select>
+    <button onclick="clearHighlights()" style="background:none;border:1px solid #e0e0e0;border-radius:3px;padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;color:#c00;border-color:#c00;"><i class="fa-solid fa-eraser"></i> Clear HL</button>
+    <div style="width:1px;height:20px;background:#e0e0e0;margin:0 2px;flex-shrink:0;" id="pdf-page-sep"></div>
+    <button id="pdf-prev" onclick="pdfPrevPage()" style="background:none;border:1px solid #e0e0e0;border-radius:3px;padding:5px 9px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">‹ Prev</button>
+    <span id="pdf-page-info" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#666;white-space:nowrap;">Page 1 / 1</span>
+    <button id="pdf-next" onclick="pdfNextPage()" style="background:none;border:1px solid #e0e0e0;border-radius:3px;padding:5px 9px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">Next ›</button>
+    <div style="width:1px;height:20px;background:#e0e0e0;margin:0 2px;flex-shrink:0;"></div>
+    <span id="pdf-title-label" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#aaa;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+    <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-shrink:0;">
+      <select id="pdf-save-folder" style="border:1px solid #e0e0e0;border-radius:3px;padding:4px 6px;font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;"></select>
+      <button onclick="saveDocHighlights()" style="background:#111;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;"><i class="fa-solid fa-floppy-disk"></i> Save Highlights</button>
+    </div>
+  </div>
+  <!-- Body: content area + highlights sidebar -->
+  <div style="display:flex;flex:1;overflow:hidden;">
+    <div id="pdf-canvas-wrap" style="flex:1;overflow:auto;padding:24px;background:#e8e8e8;display:flex;flex-direction:column;align-items:center;gap:16px;"></div>
+    <div id="hl-sidebar" style="width:256px;background:#f8f8f8;border-left:1px solid #e0e0e0;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;">
+      <div style="padding:9px 14px;border-bottom:1px solid #e0e0e0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#aaa;display:flex;justify-content:space-between;align-items:center;">
+        <span>Highlights</span><span id="hl-count" style="color:#111;font-weight:600;">0</span>
+      </div>
+      <div id="hl-list" style="flex:1;overflow-y:auto;padding:8px;"></div>
+      <div style="padding:10px 12px;border-top:1px solid #e0e0e0;">
+        <textarea id="hl-note" placeholder="Note on selected highlight…" style="width:100%;border:1px solid #e0e0e0;border-radius:2px;padding:5px 7px;font-family:'JetBrains Mono',monospace;font-size:10px;resize:none;height:52px;outline:none;color:#111;"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
 
-const request = indexedDB.open("ResearchOS",1);
+</div><!-- .main -->
 
-request.onupgradeneeded = e=>{
-    db = e.target.result;
-    db.createObjectStore("folders",{keyPath:"id",autoIncrement:true});
-    db.createObjectStore("documents",{keyPath:"id",autoIncrement:true});
-    db.createObjectStore("highlights",{keyPath:"id",autoIncrement:true});
-};
+<!-- MODALS -->
 
-request.onsuccess = e=>{
-    db = e.target.result;
-    loadFolders();
-};
+<!-- Hero -->
+<div class="mo" id="m-hero">
+  <div class="md">
+    <h2>Edit Profile</h2>
+    <div class="fg"><label>Name</label><input id="mn" type="text"></div>
+    <div class="fg"><label>Bio</label><textarea id="mb" rows="3"></textarea></div>
+    <div class="fr">
+      <div class="fg"><label>Email</label><input id="me" type="text"></div>
+      <div class="fg"><label>Years Exp.</label><input id="mx" type="text"></div>
+    </div>
+    <div class="fg"><label>Clients</label><input id="mk" type="text"></div>
+    <div class="fg"><label>Skills (comma separated)</label><input id="ms" type="text"></div>
+    <div class="ma"><button class="mc" onclick="cl('m-hero')">Cancel</button><button class="ms2" onclick="saveHero()">Save</button></div>
+  </div>
+</div>
 
-function createFolder(){
-    const name = document.getElementById("folderName").value;
-    if(!name) return;
-    const tx=db.transaction("folders","readwrite");
-    tx.objectStore("folders").add({name});
-    tx.oncomplete=loadFolders;
+<!-- Project -->
+<div class="mo" id="m-proj">
+  <div class="md">
+    <h2 id="mptitle">Add Project</h2>
+    <div class="fg"><label>Title *</label><input id="pt" type="text"></div>
+    <div class="fr">
+      <div class="fg"><label>Category</label><input id="pca" type="text"></div>
+      <div class="fg"><label>Year</label><input id="py" type="text"></div>
+    </div>
+    <div class="fg"><label>Description</label><textarea id="pd" rows="3"></textarea></div>
+    <div class="fg"><label>Technologies (comma separated)</label><input id="pte" type="text"></div>
+    <div class="fr">
+      <div class="fg"><label>Live URL</label><input id="pl3" type="text"></div>
+      <div class="fg"><label>GitHub URL</label><input id="pg2" type="text"></div>
+    </div>
+    <div class="ma"><button class="mc" onclick="cl('m-proj')">Cancel</button><button class="ms2" onclick="saveProject()">Save</button></div>
+  </div>
+</div>
+
+<!-- Folder -->
+<div class="mo" id="m-folder">
+  <div class="md" style="width:380px">
+    <h2>New Folder</h2>
+    <div class="fg"><label>Name</label><input id="fn2" type="text" placeholder="e.g. Algorithms"></div>
+    <div class="fg"><label>Description</label><input id="fd2" type="text" placeholder="Optional…"></div>
+    <div class="ma"><button class="mc" onclick="cl('m-folder')">Cancel</button><button class="ms2" onclick="saveFolder()">Create</button></div>
+  </div>
+</div>
+
+<!-- Note -->
+<div class="mo" id="m-note">
+  <div class="md">
+    <h2 id="mntitle">New Note</h2>
+    <div class="fg"><label>Title</label><input id="ntit" type="text"></div>
+    <div class="fg"><label>Folder</label><select id="nfol"></select></div>
+    <div class="fg"><label>Content</label><textarea id="ncon" rows="7"></textarea></div>
+    <div class="fg"><label>Tags (comma separated)</label><input id="ntag" type="text"></div>
+    <div class="ma"><button class="mc" onclick="cl('m-note')">Cancel</button><button class="ms2" onclick="saveNote()">Save</button></div>
+  </div>
+</div>
+
+<!-- Upload -->
+<div class="mo" id="m-upload">
+  <div class="md">
+    <h2>Upload or Import</h2>
+    <p style="font-size:12px;color:var(--td);margin-bottom:14px">Import files into Research from multiple sources.</p>
+    <div class="usrc">
+      <div class="usb sel" id="usb-device" onclick="selSrc('device')"><i class="fa-solid fa-desktop"></i><span>Device</span></div>
+      <div class="usb" id="usb-drive"  onclick="selSrc('drive')"><i class="fa-brands fa-google-drive"></i><span>Google Drive</span></div>
+      <div class="usb" id="usb-github" onclick="selSrc('github')"><i class="fa-brands fa-github"></i><span>GitHub</span></div>
+    </div>
+    <!-- device -->
+    <div id="up-device">
+      <div class="uz" id="dropzone" onclick="document.getElementById('fileinput').click()">
+        <i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;color:var(--tf)"></i>
+        <div class="uzl">Click to choose or drag files here<br><span style="font-size:9px;color:var(--tf)">PDF · Images (png/jpg/gif/webp) · Text &amp; Code (py/js/ts/html/css…) · Data (json/csv/yaml)</span></div>
+      </div>
+      <input type="file" id="fileinput" multiple accept=".txt,.md,.drawio,.xml,.pdf,.png,.jpg,.jpeg,.gif,.webp,.svg,.py,.js,.ts,.html,.css,.json,.yaml,.yml,.csv,.sh,.c,.cpp,.java,.rb,.go,.rs" style="display:none" onchange="onFileInput(event)">
+      <div class="ufi" id="flist"></div>
+    </div>
+    <!-- drive -->
+    <div id="up-drive" style="display:none">
+      <div style="border:1px solid var(--b);border-radius:3px;padding:16px;margin-bottom:10px;text-align:center">
+        <i class="fa-brands fa-google-drive" style="font-size:24px;color:#4285f4;margin-bottom:7px;display:block"></i>
+        <p style="font-size:12px;color:var(--td);margin-bottom:10px">Paste a shareable Google Drive link below.</p>
+        <input type="text" id="drurl" placeholder="https://drive.google.com/file/d/…" style="width:100%;border:1px solid var(--b);border-radius:2px;padding:7px 9px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;margin-bottom:7px">
+        <input type="text" id="drname" placeholder="File name (required)" style="width:100%;border:1px solid var(--b);border-radius:2px;padding:7px 9px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none">
+      </div>
+      <p style="font-size:9px;color:var(--tf);font-family:'JetBrains Mono',monospace">Note: The file must be publicly shared. The link is stored as a reference.</p>
+    </div>
+    <!-- github -->
+    <div id="up-github" style="display:none">
+      <div style="border:1px solid var(--b);border-radius:3px;padding:16px;margin-bottom:10px">
+        <i class="fa-brands fa-github" style="font-size:24px;margin-bottom:7px;display:block;text-align:center"></i>
+        <p style="font-size:12px;color:var(--td);margin-bottom:10px;text-align:center">Paste a raw GitHub file URL.</p>
+        <input type="text" id="ghurl" placeholder="https://raw.githubusercontent.com/…" style="width:100%;border:1px solid var(--b);border-radius:2px;padding:7px 9px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;margin-bottom:7px">
+        <input type="text" id="ghname" placeholder="File name (required)" style="width:100%;border:1px solid var(--b);border-radius:2px;padding:7px 9px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none">
+        <button class="bs" onclick="fetchGH()" style="width:100%;margin-top:8px;justify-content:center"><i class="fa-solid fa-download"></i> Fetch &amp; Import</button>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:10px"><label>Save to Folder</label><select id="upfol"></select></div>
+    <div class="ma"><button class="mc" onclick="cl('m-upload')">Cancel</button><button class="ms2" onclick="confirmUpload()">Import</button></div>
+  </div>
+</div>
+
+<!-- XML → Research -->
+<div class="mo" id="m-xres">
+  <div class="md" style="width:420px">
+    <h2>Save Diagram to Research</h2>
+    <div class="fg"><label>Diagram Name</label><input id="xrn" type="text" placeholder="e.g. Login Flow"></div>
+    <div class="fg"><label>Folder</label><select id="xrf"><option value="__root__">Root</option></select></div>
+    <div class="fg"><label>Notes</label><textarea id="xrno" rows="2"></textarea></div>
+    <div class="ma"><button class="mc" onclick="cl('m-xres')">Cancel</button><button class="ms2" onclick="confirmXmlRes()"><i class="fa-solid fa-floppy-disk"></i> Save</button></div>
+  </div>
+</div>
+
+<!-- Paper Search Modal -->
+<div class="mo" id="m-paper-search">
+  <div class="md" style="width:740px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
+    <div style="padding:24px 28px 0;flex-shrink:0;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:5px;">Search Research Papers</h2>
+      <p style="font-size:11px;font-family:'JetBrains Mono',monospace;color:#aaa;margin-bottom:14px;">Search by title, author name, or DOI — powered by Semantic Scholar</p>
+      <div style="display:flex;gap:7px;margin-bottom:14px;">
+        <input id="paper-q" type="text" placeholder="e.g. attention is all you need  /  Hinton  /  10.1038/nature14539"
+          style="flex:1;border:1px solid #e0e0e0;border-radius:3px;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;"
+          onkeydown="if(event.key==='Enter')searchPapers()"
+          onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'">
+        <button onclick="searchPapers()" style="background:#111;color:#fff;border:none;border-radius:3px;padding:9px 18px;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+      </div>
+      <div style="display:flex;gap:2px;border-bottom:1px solid #e0e0e0;">
+        <button class="ps-tab on" data-filter="all"    onclick="setPaperFilter('all',this)">All Results</button>
+        <button class="ps-tab"    data-filter="open"   onclick="setPaperFilter('open',this)">Open Access Only</button>
+        <button class="ps-tab"    data-filter="pdf"    onclick="setPaperFilter('pdf',this)">Has PDF</button>
+      </div>
+    </div>
+    <div id="paper-results" style="flex:1;overflow-y:auto;padding:14px 28px 20px;min-height:220px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#aaa;text-align:center;padding:44px 0;">Enter a search term above and press Search</div>
+    </div>
+    <div style="padding:10px 28px;border-top:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:#f8f8f8;">
+      <span id="paper-count" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#aaa;"></span>
+      <button onclick="cl('m-paper-search')" style="background:none;border:1px solid #e0e0e0;border-radius:3px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<!-- Hidden folder selects used by JS -->
+<select id="paper-save-folder-sel" style="display:none"></select>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── HELPERS ──────────────────────────────────────────
+function op(id){document.getElementById(id).classList.add('on');}
+function cl(id){document.getElementById(id).classList.remove('on');}
+function ge(id){return document.getElementById(id);}
+
+function toast(title,sub,head){
+  const c=ge('toast-container');
+  const id='t'+Date.now();
+  const d=document.createElement('div');
+  d.className='tst';d.id=id;
+  d.innerHTML=`<div class="tst-h">${head||'SAVED'}</div><div class="tst-t">${title}</div><div class="tst-s">${sub||''}</div><button class="tst-c" onclick="this.parentElement.remove()">✕</button>`;
+  c.appendChild(d);
+  setTimeout(()=>{const el=ge(id);if(el)el.remove();},5000);
 }
 
-function loadFolders(){
-    const tx=db.transaction("folders","readonly");
-    const store=tx.objectStore("folders");
-    store.getAll().onsuccess=e=>{
-        const data=e.target.result;
-        const list=document.getElementById("folderList");
-        list.innerHTML=data.map(f=>`
-            <div class="folder ${activeFolder==f.id?'active':''}" onclick="selectFolder(${f.id})">${f.name}</div>
-        `).join('');
-    };
+function escX(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── NAVIGATION ────────────────────────────────────────
+function nav(btn){
+  const id=btn.dataset.page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  ge('page-'+id).classList.add('on');
+  btn.classList.add('on');
+  if(id==='portfolio')renderProjects();
+  if(id==='planner'){renderCal();renderTasks();}
+  if(id==='about')updateHero();
+  if(id==='research'){resPath=null;resViewing=null;renderRes();}
 }
 
-function selectFolder(id){
-    activeFolder=id;
-    loadFolders();
-    loadNotes();
+// ── ABOUT / HERO ─────────────────────────────────────
+let hero=JSON.parse(localStorage.getItem('hero')||'{}');
+function updateHero(){
+  const n=hero.name||'';const pts=n.split(' ');
+  ge('hname').innerHTML=pts.length>1?`${pts[0]}<br><span class="it">${pts.slice(1).join(' ')}</span>`:(n||'Your<br><span class="it">Name Here</span>');
+  if(hero.bio)ge('hbio').textContent=hero.bio;
+  if(hero.email)ge('hemail').href='mailto:'+hero.email;
+  if(hero.exp)ge('hexp').textContent=hero.exp;
+  if(hero.clients)ge('hclients').textContent=hero.clients;
+  if(hero.skills)ge('hskills').innerHTML=hero.skills.split(',').map(s=>`<span class="stag">${s.trim()}</span>`).join('');
+  ge('hprojects').textContent=projects.length;
+}
+function openHeroEdit(){
+  ge('mn').value=hero.name||'';ge('mb').value=hero.bio||'';
+  ge('me').value=hero.email||'';ge('mx').value=hero.exp||'';
+  ge('mk').value=hero.clients||'';ge('ms').value=hero.skills||'JavaScript, React, Python, CSS, Git';
+  op('m-hero');
+}
+function saveHero(){
+  hero={name:ge('mn').value,bio:ge('mb').value,email:ge('me').value,exp:ge('mx').value,clients:ge('mk').value,skills:ge('ms').value};
+  localStorage.setItem('hero',JSON.stringify(hero));
+  updateHero();cl('m-hero');
 }
 
-function loadDevicePDF(e){
-    const file=e.target.files[0];
-    if(!file) return;
-
-    const reader=new FileReader();
-    reader.onload=async function(){
-        const typed=new Uint8Array(this.result);
-        pdfInstance=await pdfjsLib.getDocument(typed).promise;
-        renderPage(1);
-        saveDocument(file.name,"device");
-    };
-    reader.readAsArrayBuffer(file);
+// ── PORTFOLIO ─────────────────────────────────────────
+let projects=JSON.parse(localStorage.getItem('projects')||'[]');
+let editPid=null;
+function openAddProject(){
+  editPid=null;ge('mptitle').textContent='Add Project';
+  ['pt','pca','py','pd','pte','pl3','pg2'].forEach(id=>ge(id).value='');
+  op('m-proj');
+}
+function editProject(id,e){
+  e.stopPropagation();editPid=id;
+  const p=projects.find(x=>x.id===id);
+  ge('mptitle').textContent='Edit Project';
+  ge('pt').value=p.title||'';ge('pca').value=p.cat||'';ge('py').value=p.year||'';
+  ge('pd').value=p.desc||'';ge('pte').value=p.tech||'';ge('pl3').value=p.live||'';ge('pg2').value=p.github||'';
+  op('m-proj');
+}
+function saveProject(){
+  const title=ge('pt').value.trim();if(!title){alert('Title required');return;}
+  const p={id:editPid||Date.now(),title,cat:ge('pca').value.trim(),year:ge('py').value.trim(),desc:ge('pd').value.trim(),tech:ge('pte').value.trim(),live:ge('pl3').value.trim(),github:ge('pg2').value.trim()};
+  if(editPid){const i=projects.findIndex(x=>x.id===editPid);projects[i]=p;}else projects.unshift(p);
+  localStorage.setItem('projects',JSON.stringify(projects));
+  renderProjects();cl('m-proj');ge('hprojects').textContent=projects.length;
+}
+function deleteProject(id,e){
+  e.stopPropagation();if(!confirm('Delete?'))return;
+  projects=projects.filter(p=>p.id!==id);localStorage.setItem('projects',JSON.stringify(projects));
+  renderProjects();ge('hprojects').textContent=projects.length;
+}
+function renderProjects(){
+  const g=ge('proj-grid'),emp=ge('proj-empty');
+  if(!projects.length){g.innerHTML='';g.appendChild(emp);emp.style.display='block';return;}
+  g.innerHTML=projects.map(p=>`
+    <div class="pc">
+      <div class="cy">${p.year||''}</div>
+      <div class="cc">${p.cat||'Project'}</div>
+      <div class="ct">${p.title}</div>
+      <div class="cd">${p.desc||'No description.'}</div>
+      ${p.tech?`<div class="ctc">${p.tech.split(',').map(t=>`<span class="ttag">${t.trim()}</span>`).join('')}</div>`:''}
+      <div class="cl2">
+        ${p.live?`<a href="${p.live}" target="_blank">Live ↗</a>`:''}
+        ${p.github?`<a href="${p.github}" target="_blank">GitHub ↗</a>`:''}
+        <button onclick="editProject(${p.id},event)">Edit</button>
+        <button onclick="deleteProject(${p.id},event)" style="color:#c00;border-color:#c00">Delete</button>
+      </div>
+    </div>`).join('');
 }
 
-async function loadURLPDF(){
-    const url=document.getElementById("pdfURL").value;
-    if(!url) return;
+// ── CALCULATOR ───────────────────────────────────────
+let cex='',chist=[];
+function ci(v){cex+=v;updC();}
+function cc(){cex='';ge('cres').textContent='0';updC();}
+function cd(){cex=cex.slice(0,-1);updC();}
+function ceq(){
+  try{
+    const o=(cex.match(/\(/g)||[]).length,cl2=(cex.match(/\)/g)||[]).length;
+    const expr=cex+')'.repeat(Math.max(0,o-cl2));
+    const r=Function('"use strict";return('+expr+')')();
+    const d=Number.isFinite(r)?+r.toFixed(10):'Error';
+    chist.unshift({e:cex,r:d});if(chist.length>30)chist.pop();
+    ge('cres').textContent=d;ge('cexpr').textContent=cex+' =';
+    cex=String(d);renderHist();
+  }catch(e){ge('cres').textContent='Error';cex='';}
+}
+function updC(){
+  ge('cexpr').textContent=cex;
+  try{
+    const o=(cex.match(/\(/g)||[]).length,cl2=(cex.match(/\)/g)||[]).length;
+    const r=Function('"use strict";return('+cex+')'.repeat(Math.max(0,o-cl2))+'')();
+    if(Number.isFinite(r))ge('cres').textContent=+r.toFixed(10);
+  }catch(e){}
+}
+function renderHist(){
+  const b=ge('chb');
+  if(!chist.length){b.innerHTML='<div class="es" style="padding:16px;font-size:10px">No calculations yet</div>';return;}
+  b.innerHTML=chist.map(h=>`<div class="hi"><div class="hex">${h.e}</div><div class="hre">= ${h.r}</div></div>`).join('');
+}
+document.addEventListener('keydown',e=>{
+  if(!ge('page-calc').classList.contains('on'))return;
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='Enter')ceq();
+  else if(e.key==='Backspace')cd();
+  else if(e.key==='Escape')cc();
+  else if('0123456789+-*/.%()'.includes(e.key))ci(e.key);
+});
 
-    pdfInstance=await pdfjsLib.getDocument(url).promise;
-    renderPage(1);
-    saveDocument(url,"url");
+// ── FLOWCHART ────────────────────────────────────────
+let fcN=[],fcC=[],selId=null,connMode=false,connFrom=null;
+let doff={x:0,y:0},dragging=null,shQ=null,nCounter=0;
+
+function fds(e,type){shQ=type;e.dataTransfer.effectAllowed='copy';}
+function fdrop(e){
+  e.preventDefault();
+  const r=ge('fcw').getBoundingClientRect();
+  if(shQ){addNode(shQ,e.clientX-r.left-50,e.clientY-r.top-20);shQ=null;}
+}
+function fcQ(type,label){
+  const w=ge('fcw');
+  addNode(type,60+Math.random()*(w.clientWidth-180),40+Math.random()*(w.clientHeight-120),label);
+}
+function addNode(type,x,y,label){
+  const id=++nCounter;
+  const labs={terminal:'Terminal',process:'Process',decision:'Decision?',io:'Input/Output',data:'Data Store',subprocess:'Sub-Process',predefined:'Predefined'};
+  const sizes={terminal:{w:120,h:42},process:{w:120,h:42},decision:{w:130,h:76},io:{w:130,h:42},data:{w:120,h:42},subprocess:{w:130,h:42},predefined:{w:130,h:42}};
+  const s=sizes[type]||{w:120,h:42};
+  fcN.push({id,type,x,y,label:label||labs[type]||'Node',w:s.w,h:s.h});
+  renderNode(fcN[fcN.length-1]);selectNode(id);
+}
+function renderNode(node){
+  const ex=ge('fcn-'+node.id);if(ex)ex.remove();
+  const el=document.createElement('div');
+  el.className='fn '+node.type;el.id='fcn-'+node.id;
+  el.style.left=node.x+'px';el.style.top=node.y+'px';
+  el.style.width=node.w+'px';el.style.height=node.h+'px';
+  el.style.minWidth=node.w+'px';el.style.minHeight=node.h+'px';
+  el.innerHTML=`<span class="nl">${node.label}</span>`;
+  el.addEventListener('mousedown',ev=>{if(!connMode)startDrag(ev,node.id);});
+  el.addEventListener('click',ev=>{ev.stopPropagation();nodeClick(node.id);});
+  el.addEventListener('dblclick',ev=>{ev.stopPropagation();renameNode(node.id);});
+  ge('fcc').appendChild(el);
+}
+function startDrag(e,id){
+  e.preventDefault();dragging=id;
+  const n=fcN.find(x=>x.id===id);doff.x=e.clientX-n.x;doff.y=e.clientY-n.y;
+  const mv=ev=>{
+    if(!dragging)return;
+    const nd=fcN.find(x=>x.id===dragging);
+    nd.x=ev.clientX-doff.x;nd.y=ev.clientY-doff.y;
+    const el=ge('fcn-'+dragging);if(el){el.style.left=nd.x+'px';el.style.top=nd.y+'px';}
+    renderConns();
+  };
+  const up=()=>{dragging=null;document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+}
+function nodeClick(id){
+  if(connMode){
+    if(!connFrom){connFrom=id;ge('fcn-'+id).style.boxShadow='0 0 0 3px #000';}
+    else if(connFrom!==id){fcC.push({from:connFrom,to:id});ge('fcn-'+connFrom).style.boxShadow='';connFrom=null;renderConns();}
+    return;
+  }
+  selectNode(id);
+}
+function selectNode(id){
+  document.querySelectorAll('.fn').forEach(el=>el.classList.remove('sel'));
+  selId=id;ge('fcn-'+id)?.classList.add('sel');renderFcProps(id);
+}
+function fcClick(e){
+  if(e.target===ge('fcc')||e.target.closest('svg')){
+    selId=null;document.querySelectorAll('.fn').forEach(el=>el.classList.remove('sel'));
+    ge('fprb').innerHTML='<div class="ph2">Select a node</div>';
+    if(connMode&&connFrom){ge('fcn-'+connFrom).style.boxShadow='';connFrom=null;}
+  }
+}
+function renameNode(id){
+  const node=fcN.find(n=>n.id===id);const el=ge('fcn-'+id);
+  const lbl=el.querySelector('.nl');const inp=document.createElement('input');
+  inp.value=node.label;
+  inp.style.cssText='background:transparent;border:none;outline:none;color:#000;font-family:Inter,sans-serif;font-size:12px;text-align:center;width:100%;font-weight:500';
+  lbl.replaceWith(inp);inp.focus();inp.select();
+  const done=()=>{
+    node.label=inp.value||node.label;
+    const s=document.createElement('span');s.className='nl';s.textContent=node.label;inp.replaceWith(s);renderFcProps(id);
+  };
+  inp.addEventListener('blur',done);
+  inp.addEventListener('keydown',ev=>{if(ev.key==='Enter')done();ev.stopPropagation();});
+}
+function renderFcProps(id){
+  const node=fcN.find(n=>n.id===id);if(!node)return;
+  ge('fprb').innerHTML=`
+    <div class="pg2"><label>Label</label><input type="text" value="${node.label.replace(/"/g,'&quot;')}" oninput="updNP(${id},'label',this.value)"></div>
+    <div class="pg2"><label>Type</label>
+      <select onchange="updNT(${id},this.value)">
+        ${['terminal','process','decision','io','data','subprocess','predefined'].map(t=>`<option ${node.type===t?'selected':''}>${t}</option>`).join('')}
+      </select>
+    </div>
+    <div class="pg2"><label>Width (px)</label><input type="number" value="${node.w}" min="60" max="400" oninput="updNP(${id},'w',+this.value)"></div>
+    <div class="pg2"><label>Height (px)</label><input type="number" value="${node.h}" min="30" max="300" oninput="updNP(${id},'h',+this.value)"></div>
+    <div class="pg2" style="margin-top:10px"><button onclick="fcDel()" style="width:100%;padding:6px;border:1px solid #c00;border-radius:2px;color:#c00;background:#fff;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer">Delete Node</button></div>`;
+}
+function updNP(id,prop,val){
+  const node=fcN.find(n=>n.id===id);if(!node)return;node[prop]=val;
+  const el=ge('fcn-'+id);if(!el)return;
+  if(prop==='label'){const l=el.querySelector('.nl');if(l)l.textContent=val;}
+  if(prop==='w'){el.style.width=val+'px';el.style.minWidth=val+'px';renderConns();}
+  if(prop==='h'){el.style.height=val+'px';el.style.minHeight=val+'px';renderConns();}
+}
+function updNT(id,type){
+  const node=fcN.find(n=>n.id===id);node.type=type;
+  const sizes={terminal:{w:120,h:42},process:{w:120,h:42},decision:{w:130,h:76},io:{w:130,h:42},data:{w:120,h:42},subprocess:{w:130,h:42},predefined:{w:130,h:42}};
+  const s=sizes[type]||{w:120,h:42};node.w=s.w;node.h=s.h;
+  renderNode(node);selectNode(id);
+}
+function fcDel(){
+  if(!selId)return;
+  fcC=fcC.filter(c=>c.from!==selId&&c.to!==selId);
+  ge('fcn-'+selId)?.remove();fcN=fcN.filter(n=>n.id!==selId);selId=null;
+  renderConns();ge('fprb').innerHTML='<div class="ph2">Select a node</div>';
+}
+function clearCanvas(){
+  if(!confirm('Clear all?'))return;
+  fcN=[];fcC=[];selId=null;document.querySelectorAll('.fn').forEach(el=>el.remove());renderConns();
+}
+function toggleConn(){
+  connMode=!connMode;connFrom=null;
+  const btn=ge('connbtn');btn.classList.toggle('on',connMode);
+  btn.innerHTML=connMode?'<i class="fa-solid fa-link-slash"></i> Cancel':'<i class="fa-solid fa-link"></i> Connect';
+  ge('fcc').style.cursor=connMode?'crosshair':'default';
 }
 
-function saveDocument(source,type){
-    if(!activeFolder){
-        alert("Select a folder first");
-        return;
+// STRAIGHT LINES — smart port selection
+function renderConns(){
+  const svg=ge('fsvg');svg.querySelectorAll('line').forEach(e=>e.remove());
+  fcC.forEach(conn=>{
+    const fn=fcN.find(n=>n.id===conn.from),tn=fcN.find(n=>n.id===conn.to);
+    if(!fn||!tn)return;
+    const fe=ge('fcn-'+fn.id),te=ge('fcn-'+tn.id);if(!fe||!te)return;
+    const fw=fe.offsetWidth,fh=fe.offsetHeight,tw=te.offsetWidth,th=te.offsetHeight;
+    const fcx=fn.x+fw/2,fcy=fn.y+fh/2,tcx=tn.x+tw/2,tcy=tn.y+th/2;
+    const pf=[{x:fcx,y:fn.y},{x:fcx,y:fn.y+fh},{x:fn.x,y:fcy},{x:fn.x+fw,y:fcy}];
+    const pt=[{x:tcx,y:tn.y},{x:tcx,y:tn.y+th},{x:tn.x,y:tcy},{x:tn.x+tw,y:tcy}];
+    let best=Infinity,x1,y1,x2,y2;
+    pf.forEach(a=>pt.forEach(b=>{const d=Math.hypot(a.x-b.x,a.y-b.y);if(d<best){best=d;x1=a.x;y1=a.y;x2=b.x;y2=b.y;}}));
+    const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);if(len<2)return;
+    const off=10,ex2=x2-(dx/len)*off,ey2=y2-(dy/len)*off;
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',x1);line.setAttribute('y1',y1);
+    line.setAttribute('x2',ex2);line.setAttribute('y2',ey2);
+    line.setAttribute('stroke','#000');line.setAttribute('stroke-width',conn.thickness||1.5);
+    line.setAttribute('marker-end','url(#arr)');svg.appendChild(line);
+  });
+}
+
+function genXML(){
+  let x=`<?xml version="1.0" encoding="UTF-8"?>\n<mxGraphModel><root>\n<mxCell id="0"/><mxCell id="1" parent="0"/>\n`;
+  const sm={terminal:'rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000;fontColor=#000;',process:'rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000;fontColor=#000;',decision:'rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000;fontColor=#000;',io:'parallelogram;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000;fontColor=#000;',data:'rounded=0;dashed=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000;fontColor=#000;',subprocess:'rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000;fontColor=#000;',predefined:'rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000;fontColor=#000;strokeWidth=3;'};
+  fcN.forEach(n=>{x+=`<mxCell id="${n.id}" value="${escX(n.label)}" style="${sm[n.type]||sm.process}" vertex="1" parent="1"><mxGeometry x="${Math.round(n.x)}" y="${Math.round(n.y)}" width="${n.w}" height="${n.h}" as="geometry"/></mxCell>\n`;});
+  fcC.forEach((c,i)=>{x+=`<mxCell id="e${i}" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#000;" edge="1" source="${c.from}" target="${c.to}" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>\n`;});
+  return x+'</root></mxGraphModel>';
+}
+
+function fcExportSVG(){
+  if(!fcN.length){alert('Canvas is empty.');return;}
+  let mx=Infinity,my=Infinity,maxX=0,maxY=0;
+  fcN.forEach(n=>{mx=Math.min(mx,n.x);my=Math.min(my,n.y);maxX=Math.max(maxX,n.x+n.w);maxY=Math.max(maxY,n.y+n.h);});
+  const pad=40,W=maxX-mx+pad*2,H=maxY-my+pad*2;
+  let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" style="background:#fff">`;
+  svg+=`<defs><marker id="arr" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,7 3,0 6" fill="#000"/></marker></defs>`;
+  fcC.forEach(conn=>{
+    const fn=fcN.find(n=>n.id===conn.from),tn=fcN.find(n=>n.id===conn.to);if(!fn||!tn)return;
+    const x1=fn.x-mx+pad+fn.w/2,y1=fn.y-my+pad+fn.h/2;
+    const x2=tn.x-mx+pad+tn.w/2,y2=tn.y-my+pad+tn.h/2;
+    const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);const off=10;
+    const ex=x2-(dx/len)*off,ey=y2-(dy/len)*off;
+    svg+=`<line x1="${x1}" y1="${y1}" x2="${ex}" y2="${ey}" stroke="#000" stroke-width="${conn.thickness||1.5}" marker-end="url(#arr)"/>`;
+  });
+  fcN.forEach(n=>{
+    const x=n.x-mx+pad,y=n.y-my+pad,cx=x+n.w/2,cy=y+n.h/2;
+    if(n.type==='terminal')svg+=`<rect x="${x}" y="${y}" width="${n.w}" height="${n.h}" rx="${n.h/2}" fill="none" stroke="#000" stroke-width="2"/>`;
+    else if(n.type==='decision')svg+=`<polygon points="${cx},${y} ${x+n.w},${cy} ${cx},${y+n.h} ${x},${cy}" fill="none" stroke="#000" stroke-width="2"/>`;
+    else if(n.type==='io')svg+=`<polygon points="${x+n.w*.12},${y} ${x+n.w},${y} ${x+n.w*.88},${y+n.h} ${x},${y+n.h}" fill="none" stroke="#000" stroke-width="2"/>`;
+    else if(n.type==='data')svg+=`<rect x="${x}" y="${y}" width="${n.w}" height="${n.h}" fill="none" stroke="#000" stroke-width="2" stroke-dasharray="5,3"/>`;
+    else svg+=`<rect x="${x}" y="${y}" width="${n.w}" height="${n.h}" fill="none" stroke="#000" stroke-width="2"/>`;
+    svg+=`<text x="${cx}" y="${cy+4}" font-family="Inter,sans-serif" font-size="12" fill="#000" text-anchor="middle" font-weight="500">${escX(n.label)}</text>`;
+  });
+  svg+='</svg>';
+  dl(new Blob([svg],{type:'image/svg+xml'}),'flowchart.svg');
+}
+function fcExportXML(){
+  if(!fcN.length){alert('Canvas is empty.');return;}
+  dl(new Blob([genXML()],{type:'application/xml'}),'flowchart.drawio');
+}
+function fcSaveRes(){
+  if(!fcN.length){alert('Canvas is empty.');return;}
+  popFolderSel('xrf');
+  ge('xrn').value='Diagram '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  ge('xrno').value='';op('m-xres');
+}
+function confirmXmlRes(){
+  const name=ge('xrn').value.trim()||'Untitled Diagram';
+  resFiles.unshift({id:Date.now(),type:'xml',name,folderId:ge('xrf').value,notes:ge('xrno').value.trim(),xml:genXML(),nodeCount:fcN.length,connCount:fcC.length,date:new Date().toISOString()});
+  saveResData();cl('m-xres');toast(name,'Saved to Research Files','DIAGRAM SAVED');
+}
+function dl(blob,fname){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();}
+
+// ── PLANNER ──────────────────────────────────────────
+let tasks=JSON.parse(localStorage.getItem('tasks')||'[]');
+let calM=new Date().getMonth(),calY=new Date().getFullYear();
+let selDate=new Date().toISOString().split('T')[0];
+let planView='day';
+const MNS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function renderCal(){
+  ge('callbl').textContent=MNS[calM]+' '+calY;
+  const g=ge('calgrid');
+  const ds=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  g.innerHTML=ds.map(d=>`<div class="mcdl">${d}</div>`).join('');
+  const first=new Date(calY,calM,1).getDay();
+  const inM=new Date(calY,calM+1,0).getDate();
+  const prev=new Date(calY,calM,0).getDate();
+  const today=new Date().toISOString().split('T')[0];
+  for(let i=first-1;i>=0;i--){
+    const d=prev-i,date=new Date(calY,calM-1,d).toISOString().split('T')[0];
+    g.innerHTML+=`<div class="mcd om ${date===selDate?'sel':''}" onclick="pickDate('${date}')">${d}</div>`;
+  }
+  for(let d=1;d<=inM;d++){
+    const date=new Date(calY,calM,d).toISOString().split('T')[0];
+    const ht=tasks.some(t=>t.date===date);
+    g.innerHTML+=`<div class="mcd ${date===today?'tod':''} ${date===selDate&&date!==today?'sel':''} ${ht?'has':''}" onclick="pickDate('${date}')">${d}</div>`;
+  }
+}
+function calNav(dir){calM+=dir;if(calM>11){calM=0;calY++;}if(calM<0){calM=11;calY--;}renderCal();}
+function pickDate(d){
+  selDate=d;ge('tdate').value=d;renderCal();
+  if(planView==='day')renderTasks();
+  const dt=new Date(d+'T00:00:00');
+  ge('plandlbl').textContent=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+}
+function planV(v,btn){
+  planView=v;document.querySelectorAll('.ptb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderTasks();
+}
+function addTask(){
+  const title=ge('tt').value.trim();if(!title){alert('Enter a task title');return;}
+  const t={id:Date.now(),title,time:ge('ttime').value,date:ge('tdate').value||selDate,priority:ge('tpri').value,desc:ge('tdesc').value.trim(),done:false,fired:false};
+  tasks.unshift(t);localStorage.setItem('tasks',JSON.stringify(tasks));
+  ge('tt').value='';ge('tdesc').value='';ge('ttime').value='';
+  renderTasks();renderCal();
+}
+function toggleTask(id){const t=tasks.find(x=>x.id===id);if(t){t.done=!t.done;localStorage.setItem('tasks',JSON.stringify(tasks));renderTasks();}}
+function delTask(id){tasks=tasks.filter(x=>x.id!==id);localStorage.setItem('tasks',JSON.stringify(tasks));renderTasks();renderCal();}
+function renderTasks(){
+  const body=ge('tasksbody');
+  const today=new Date().toISOString().split('T')[0];
+  let list=planView==='day'?tasks.filter(t=>t.date===selDate):planView==='done'?tasks.filter(t=>t.done):tasks;
+  list=[...list].sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;if(a.time&&b.time)return a.time.localeCompare(b.time);return 0;});
+  if(!list.length){body.innerHTML='<div class="es">No tasks here.</div>';return;}
+  const dl=planView!=='day';
+  body.innerHTML=list.map(t=>`
+    <div class="ti ${t.done?'done':''} ${!t.done&&t.date<today?'overdue':''} ${t.priority}">
+      <div class="tpb"></div>
+      <button class="tch ${t.done?'chk':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</button>
+      <div class="tbd">
+        <div class="tit">${t.title}</div>
+        <div class="tme">
+          ${t.time?`<span class="tml">⏰ ${t.time}</span>`:''}
+          ${dl?`<span class="tml">📅 ${t.date}</span>`:''}
+          <span class="tpr">${t.priority}</span>
+          ${!t.done&&t.date<today?'<span class="tpr" style="color:#c00;border-color:#c00">overdue</span>':''}
+        </div>
+        ${t.desc?`<div style="font-size:10px;color:var(--tf);margin-top:3px;font-family:'JetBrains Mono',monospace">${t.desc}</div>`:''}
+      </div>
+      ${t.time?'<span class="rd">⏰</span>':''}
+      <button class="tde" onclick="delTask(${t.id})"><i class="fa-solid fa-trash"></i></button>
+    </div>`).join('');
+}
+function checkReminders(){
+  const now=new Date(),today=now.toISOString().split('T')[0];
+  const hm=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  tasks.forEach(t=>{
+    if(!t.done&&!t.fired&&t.date===today&&t.time){
+      const[th,tm]=t.time.split(':').map(Number),[nh,nm]=hm.split(':').map(Number);
+      if(nh*60+nm>=th*60+tm-1&&nh*60+nm<=th*60+tm+1){
+        t.fired=true;localStorage.setItem('tasks',JSON.stringify(tasks));
+        toast(t.title,t.time+(t.desc?' · '+t.desc:''),'⏰ REMINDER');
+        if('Notification' in window&&Notification.permission==='granted')new Notification('Reminder: '+t.title,{body:t.time});
+      }
     }
-    const tx=db.transaction("documents","readwrite");
-    tx.objectStore("documents").add({
-        folderId:activeFolder,
-        source,
-        type,
-        date:new Date().toISOString()
+  });
+}
+if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();
+setInterval(checkReminders,30000);checkReminders();
+
+// ── RESEARCH ─────────────────────────────────────────
+let resFolders=JSON.parse(localStorage.getItem('res_folders')||'[]');
+let resFiles=JSON.parse(localStorage.getItem('res_files')||'[]');
+let resPath=null,resViewing=null,editNoteId=null,upSrc='device',upFiles=[];
+
+function saveResData(){localStorage.setItem('res_folders',JSON.stringify(resFolders));localStorage.setItem('res_files',JSON.stringify(resFiles));}
+
+function popFolderSel(...ids){
+  ids.forEach(id=>{
+    const sel=ge(id);if(!sel)return;
+    sel.innerHTML='<option value="__root__">Root</option>';
+    resFolders.forEach(f=>{const o=document.createElement('option');o.value=f.id;o.textContent='📂 '+f.name;if(resPath&&resPath===f.id)o.selected=true;sel.appendChild(o);});
+  });
+}
+
+function openFolderModal(){ge('fn2').value='';ge('fd2').value='';op('m-folder');}
+function saveFolder(){
+  const name=ge('fn2').value.trim();if(!name){alert('Enter a name');return;}
+  resFolders.push({id:'f'+Date.now(),name,desc:ge('fd2').value.trim(),parentId:resPath||'__root__',date:new Date().toISOString()});
+  saveResData();cl('m-folder');renderRes();
+}
+
+function openNoteModal(id){
+  editNoteId=id||null;ge('mntitle').textContent=id?'Edit Note':'New Note';
+  if(id){const f=resFiles.find(x=>x.id===id);ge('ntit').value=f.name||'';ge('ncon').value=f.content||'';ge('ntag').value=f.tags||'';}
+  else{ge('ntit').value='';ge('ncon').value='';ge('ntag').value='';}
+  popFolderSel('nfol');
+  if(id){const f=resFiles.find(x=>x.id===id);ge('nfol').value=f.folderId||'__root__';}
+  op('m-note');
+}
+function saveNote(){
+  const title=ge('ntit').value.trim();if(!title){alert('Title required');return;}
+  const note={id:editNoteId||Date.now(),type:'note',name:title,folderId:ge('nfol').value,content:ge('ncon').value,tags:ge('ntag').value,date:new Date().toISOString()};
+  if(editNoteId){const i=resFiles.findIndex(f=>f.id===editNoteId);resFiles[i]=note;}else resFiles.unshift(note);
+  saveResData();cl('m-note');renderRes();
+}
+
+function openUploadModal(){
+  upFiles=[];ge('flist').innerHTML='';ge('drurl').value='';ge('drname').value='';ge('ghurl').value='';ge('ghname').value='';
+  selSrc('device');popFolderSel('upfol');op('m-upload');
+}
+function selSrc(src){
+  upSrc=src;['device','drive','github'].forEach(s=>{ge('usb-'+s).classList.toggle('sel',s===src);ge('up-'+s).style.display=s===src?'block':'none';});
+}
+function onFileInput(e){
+  upFiles=[...e.target.files];
+  ge('flist').innerHTML=upFiles.map(f=>`<div>📄 ${f.name} (${(f.size/1024).toFixed(1)} KB)</div>`).join('');
+}
+// drag-drop onto upload zone
+(()=>{
+  const dz=ge('dropzone');
+  if(!dz)return;
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='#000';});
+  dz.addEventListener('dragleave',()=>dz.style.borderColor='');
+  dz.addEventListener('drop',e=>{
+    e.preventDefault();dz.style.borderColor='';
+    upFiles=[...e.dataTransfer.files];
+    ge('flist').innerHTML=upFiles.map(f=>`<div>📄 ${f.name}</div>`).join('');
+  });
+})();
+
+function confirmUpload(){
+  const fid=ge('upfol').value||'__root__';
+  if(upSrc==='device'){
+    if(!upFiles.length){alert('No files selected');return;}
+    let done=0;
+    upFiles.forEach(file=>{
+      const isImg = file.type.startsWith('image/');
+      const isPdf = file.type==='application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        resFiles.unshift({
+          id: Date.now()+Math.random(),
+          type: 'file',
+          name: file.name,
+          folderId: fid,
+          content: ev.target.result,   // dataURL for images/PDFs, text for others
+          fileType: file.type,
+          size: file.size,
+          highlights: [],
+          date: new Date().toISOString()
+        });
+        done++;
+        if(done===upFiles.length){saveResData();renderRes();cl('m-upload');toast('Imported '+done+' file(s)','From device','UPLOAD');}
+      };
+      if(isImg || isPdf) reader.readAsDataURL(file);   // preserve binary as base64
+      else               reader.readAsText(file);
     });
-    activeDoc=source;
+  } else if(upSrc==='drive'){
+    const url=ge('drurl').value.trim(),name=ge('drname').value.trim();
+    if(!url||!name){alert('URL and name required');return;}
+    resFiles.unshift({id:Date.now(),type:'link',name,folderId:fid,url,source:'Google Drive',highlights:[],date:new Date().toISOString()});
+    saveResData();cl('m-upload');renderRes();toast(name,'Linked from Google Drive','IMPORT');
+  } else {alert('Use "Fetch & Import" for GitHub.');}
 }
 
-async function renderPage(num){
-    const page=await pdfInstance.getPage(num);
-    const viewport=page.getViewport({scale:1.5});
-    const canvas=document.getElementById("pdfCanvas");
-    const ctx=canvas.getContext("2d");
-
-    canvas.width=viewport.width;
-    canvas.height=viewport.height;
-
-    await page.render({canvasContext:ctx,viewport}).promise;
-    initHighlighter();
+async function fetchGH(){
+  const url=ge('ghurl').value.trim(),name=ge('ghname').value.trim();
+  if(!url||!name){alert('URL and name required');return;}
+  const fid=ge('upfol').value||'__root__';
+  try{
+    const raw=url.includes('raw.githubusercontent.com')?url:url.replace('github.com','raw.githubusercontent.com').replace('/blob/','/')
+    const resp=await fetch(raw);if(!resp.ok)throw new Error('HTTP '+resp.status);
+    const text=await resp.text();
+    resFiles.unshift({id:Date.now(),type:'file',name,folderId:fid,content:text,source:'GitHub',url:raw,date:new Date().toISOString()});
+    saveResData();cl('m-upload');renderRes();toast(name,'Fetched from GitHub','IMPORT');
+  }catch(e){alert('Failed: '+e.message+'\nMake sure it\'s a public raw file URL.');}
 }
 
-function initHighlighter(){
-    const layer=document.getElementById("hlLayer");
-    layer.innerHTML="";
-    layer.onmouseup=function(){
-        const sel=window.getSelection();
-        const text=sel.toString().trim();
-        if(text.length>0){
-            const range=sel.getRangeAt(0);
-            const rect=range.getBoundingClientRect();
-            const container=layer.getBoundingClientRect();
-
-            const hl=document.createElement("div");
-            hl.className="hl";
-            hl.style.left=(rect.left-container.left)+"px";
-            hl.style.top=(rect.top-container.top)+"px";
-            hl.style.width=rect.width+"px";
-            hl.style.height=rect.height+"px";
-            layer.appendChild(hl);
-
-            saveHighlight(text);
-        }
-    };
+function renderRes(){
+  const con=ge('rcontent'),bc=ge('rbc');
+  const q=(ge('rsearch')?.value||'').toLowerCase();
+  if(resPath){const f=resFolders.find(x=>x.id===resPath);bc.innerHTML=`<span onclick="resPath=null;resViewing=null;renderRes()">Root</span><span style="color:var(--tf);margin:0 4px">›</span><span>${f?f.name:''}</span>`;}
+  else bc.innerHTML=`<span>Root</span>`;
+  if(resViewing){renderFileView(resViewing,con);return;}
+  const folders=resFolders.filter(f=>{const ip=resPath?f.parentId===resPath:(f.parentId==='__root__'||!f.parentId);return ip&&(!q||f.name.toLowerCase().includes(q));});
+  const files=resFiles.filter(f=>{const ip=resPath?f.folderId===resPath:(f.folderId==='__root__'||!f.folderId);return ip&&(!q||f.name.toLowerCase().includes(q)||(f.tags&&f.tags.toLowerCase().includes(q)));});
+  if(!folders.length&&!files.length){con.innerHTML='<div class="es">Empty. Create folders, notes, or upload files.</div>';return;}
+  let html='<div class="rg">';
+  folders.forEach(f=>{
+    const fc=resFiles.filter(x=>x.folderId===f.id).length;
+    html+=`<div class="rc" onclick="resPath='${f.id}';resViewing=null;renderRes()">
+      <div class="rca"><button class="ra del" onclick="event.stopPropagation();delFolder('${f.id}')"><i class="fa-solid fa-trash"></i></button></div>
+      <div class="rci">📂</div><div class="rcn">${f.name}</div>
+      ${f.desc?`<div class="rcd">${f.desc}</div>`:''}
+      <div class="rcm">${fc} file${fc!==1?'s':''} · ${fmtD(f.date)}</div>
+    </div>`;
+  });
+  files.forEach(f=>{
+    const icon=f.type==='xml'?'📊':f.type==='link'?'🔗':f.type==='paper'?'🔬':
+               (f.fileType||'').includes('image')?'🖼️':
+               (f.name||'').match(/\.pdf$/i)?'📄':'📝';
+    const typeLbl=f.type==='xml'?'draw.io XML':f.type==='paper'?'Research Paper':(f.source||f.type);
+    const tags=f.tags?f.tags.split(',').filter(Boolean).map(t=>`<span class="rtag">${t.trim()}</span>`).join(''):'';
+    const canView=f.type!=='xml'&&f.type!=='link';
+    const hlCount=(f.highlights||[]).length;
+    html+=`<div class="rc" onclick="resViewing=${f.id};renderRes()">
+      <div class="rca">
+        ${f.type==='note'?`<button class="ra" onclick="event.stopPropagation();openNoteModal(${f.id})"><i class="fa-solid fa-pen"></i></button>`:''}
+        ${canView?`<button class="ra" style="color:#111;border-color:#111" onclick="event.stopPropagation();showDocViewer(${f.id})"><i class="fa-solid fa-highlighter"></i></button>`:''}
+        <button class="ra" onclick="event.stopPropagation();dlRes(${f.id})"><i class="fa-solid fa-download"></i></button>
+        <button class="ra del" onclick="event.stopPropagation();delRes(${f.id})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+      <div class="rci">${icon}</div>
+      <span class="rtyp">${typeLbl}</span>
+      <div class="rcn">${f.name}</div>
+      ${f.type==='paper'?`<div class="rcm">${f.authors?f.authors.split(',')[0]+(f.year?' · '+f.year:''):''}${hlCount?' · '+hlCount+' hl':''}</div>`:''}
+      ${f.type==='xml'?`<div class="rcm">${f.nodeCount} nodes · ${f.connCount} conns</div>`:''}
+      ${hlCount&&f.type!=='paper'?`<div class="rcm" style="color:#b8860b;">✦ ${hlCount} highlight${hlCount!==1?'s':''}</div>`:''}
+      ${f.type!=='paper'&&(f.notes||f.content)?`<div class="rcd">${((f.notes||f.content||'').slice(0,68))}${((f.notes||f.content||'').length>68?'…':'')}</div>`:''}
+      ${tags?`<div class="rtags">${tags}</div>`:''}
+      <div class="rcm">${fmtD(f.date)}</div>
+    </div>`;
+  });
+  html+='</div>';con.innerHTML=html;
 }
 
-function saveHighlight(text){
-    if(!activeFolder) return;
+function renderFileView(id,con){
+  const f=resFiles.find(x=>x.id===id);if(!f){resViewing=null;renderRes();return;}
+  const tags=f.tags?f.tags.split(',').filter(Boolean).map(t=>`<span class="rtag">${t.trim()}</span>`).join(''):'';
+  let body='';
+  if(f.type==='xml') {
+    body=`<div style="font-size:12px;color:var(--td);margin-bottom:10px">Open in draw.io by importing the downloaded file.</div><pre>${escX(f.xml)}</pre>`;
+  } else if(f.type==='link') {
+    body=`<div style="margin:10px 0"><a href="${f.url}" target="_blank" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#000">${f.url}</a></div><p style="font-size:10px;color:var(--tf);font-family:'JetBrains Mono',monospace">Source: ${f.source}</p>`;
+  } else if(f.type==='paper') {
+    const hlSummary = (f.highlights||[]).length
+      ? `<div style="margin-top:14px;padding:12px;background:#fffbea;border:1px solid #e8d800;border-radius:3px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:8px;">Highlights (${f.highlights.length})</div>
+          ${f.highlights.map((h,i)=>`<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+            <div style="width:16px;height:16px;background:${h.color};border-radius:2px;flex-shrink:0;margin-top:1px;"></div>
+            <div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#aaa;">Page ${h.page}</span>${h.note?`<div style="font-size:12px;color:#333;margin-top:1px">${escX(h.note)}</div>`:''}</div>
+          </div>`).join('')}
+        </div>` : '';
+    body=`<div class="rnv">${f.content||''}</div>${hlSummary}`;
+  } else if(f.type==='note') {
+    body=`<div class="rnv">${f.content||''}</div>`;
+  } else {
+    const isImg=(f.fileType||'').startsWith('image/')||(f.name||'').match(/\.(png|jpe?g|gif|webp|svg)$/i);
+    const isPdf=(f.fileType||'')==='application/pdf'||(f.name||'').toLowerCase().endsWith('.pdf');
+    if(isImg){
+      body=`<div style="text-align:center;padding:10px 0"><img src="${f.content||f.url||''}" alt="${escX(f.name)}" style="max-width:100%;max-height:360px;object-fit:contain;border:1px solid #e0e0e0;border-radius:2px;"></div>`;
+    } else if(isPdf){
+      body=`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#666;padding:16px 0;">PDF file · ${f.size?(f.size/1024).toFixed(1)+' KB':'unknown size'} · Click "Open &amp; Highlight" to view and annotate.</div>`;
+    } else {
+      body=`<pre style="font-size:11px;line-height:1.6;white-space:pre-wrap;word-break:break-all;">${escX((f.content||'').slice(0,6000))}${(f.content||'').length>6000?'\n…truncated':''}</pre>`;
+    }
+  }
+  // Highlight summary for ALL types
+  const hlSum=(f.highlights||[]).length?`
+    <div style="margin-top:14px;padding:12px;background:#fffbea;border:1px solid #e8d800;border-radius:3px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:8px;">Highlights (${(f.highlights||[]).length})</div>
+      ${(f.highlights||[]).map(h=>`<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;">
+        <div style="width:14px;height:14px;min-width:14px;background:${h.color};border-radius:2px;margin-top:1px;"></div>
+        <div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#aaa;">${h.lineStart!==undefined?'Lines '+(h.lineStart+1)+'–'+(h.lineEnd+1):'Page '+(h.page||1)}</span>
+        ${h.note?`<div style="font-size:11px;color:#333;margin-top:1px;">${escX(h.note)}</div>`:''}</div>
+      </div>`).join('')}
+    </div>`:'';
+  body += hlSum;
+  con.innerHTML=`
+    <button class="rbk" onclick="resViewing=null;renderRes()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+    <div class="rv">
+      <h2>${f.name}</h2>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--tf);margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap">
+        ${f.type==='paper'?`<span>${f.authors||''}</span>${f.year?'<span>'+f.year+'</span>':''}${f.doi?`<span>DOI: ${f.doi}</span>`:''}`:``}
+        <span>${fmtD(f.date)}</span>
+        ${f.type==='xml'?`<span>${f.nodeCount} nodes · ${f.connCount} connections</span>`:''}
+        ${f.source&&f.type!=='paper'?`<span>${f.source}</span>`:''}
+      </div>
+      ${tags?`<div class="rtags" style="margin-bottom:10px">${tags}</div>`:''}
+      ${f.notes?`<div style="font-size:12px;color:var(--td);background:var(--s1);border:1px solid var(--b);border-radius:2px;padding:10px;margin-bottom:12px">${f.notes}</div>`:''}
+      ${body}
+      <div style="margin-top:16px;display:flex;gap:7px;flex-wrap:wrap">
+        ${f.type!=='xml'&&f.type!=='link'?`<button class="bp" onclick="showDocViewer(${f.id})"><i class="fa-solid fa-highlighter"></i> Open &amp; Highlight</button>`:''}
+        <button class="bs" onclick="dlRes(${f.id})"><i class="fa-solid fa-download"></i> Download</button>
+        ${f.type==='note'?`<button class="bs" onclick="openNoteModal(${f.id})"><i class="fa-solid fa-pen"></i> Edit</button>`:''}
+        ${f.type==='paper'&&f.doi?`<button class="bs" onclick="window.open('https://doi.org/${f.doi}','_blank')"><i class="fa-solid fa-link"></i> DOI</button>`:''}
+      </div>
+    </div>`;
+}
 
-    const tx=db.transaction("highlights","readwrite");
-    tx.objectStore("highlights").add({
-        folderId:activeFolder,
-        document:activeDoc,
-        content:text,
-        date:new Date().toISOString()
+function delFolder(id){if(!confirm('Delete folder and contents?'))return;resFolders=resFolders.filter(f=>f.id!==id);resFiles=resFiles.filter(f=>f.folderId!==id);saveResData();renderRes();}
+function delRes(id){if(!confirm('Delete?'))return;resFiles=resFiles.filter(f=>f.id!==id);saveResData();resViewing=null;renderRes();}
+function dlRes(id){
+  const f=resFiles.find(x=>x.id===id);if(!f)return;
+  if(f.type==='link'){window.open(f.url,'_blank');return;}
+  const content=f.type==='xml'?f.xml:(f.content||'');
+  const ext=f.type==='xml'?'.drawio':'.txt';
+  dl(new Blob([content],{type:f.type==='xml'?'application/xml':'text/plain'}),f.name.replace(/[^a-z0-9.]/gi,'_')+ext);
+}
+function fmtD(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+
+// fix .ms2 modal save buttons styling
+document.querySelectorAll('.ms2').forEach(el=>{
+  Object.assign(el.style,{background:'#111',border:'none',borderRadius:'3px',padding:'7px 18px',color:'#fff',fontFamily:'Inter,sans-serif',fontSize:'12px',fontWeight:'500',cursor:'pointer'});
+  el.onmouseenter=()=>el.style.opacity='.8';
+  el.onmouseleave=()=>el.style.opacity='1';
+});
+
+// ── INIT ─────────────────────────────────────────────
+(function init(){
+  updateHero(); renderProjects();
+  const today=new Date().toISOString().split('T')[0];
+  selDate=today; ge('tdate').value=today;
+  ge('plandlbl').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  renderCal(); renderTasks();
+})();
+
+// ── PAPER SEARCH ─────────────────────────────────────────────────────────────
+let paperResults = [];
+let paperFilter  = 'all';
+let currentPaperPdf = null; // { url, title, paper }
+
+function openPaperSearch() {
+  ge('paper-q').value = '';
+  ge('paper-results').innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#aaa;text-align:center;padding:44px 0;">Enter a search term above and press Search</div>';
+  ge('paper-count').textContent = '';
+  paperResults = [];
+  op('m-paper-search');
+  setTimeout(() => ge('paper-q').focus(), 120);
+}
+
+function setPaperFilter(f, btn) {
+  paperFilter = f;
+  document.querySelectorAll('.ps-tab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  renderPaperResults();
+}
+
+async function searchPapers() {
+  const q = ge('paper-q').value.trim();
+  if (!q) return;
+  const res = ge('paper-results');
+  res.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#aaa;text-align:center;padding:44px 0;"><i class="fa-solid fa-circle-notch fa-spin"></i>  Searching…</div>';
+  ge('paper-count').textContent = '';
+
+  try {
+    // Detect DOI input (starts with 10. or doi:)
+    const isDOI = /^(doi:)?10\.\d{4,}\//.test(q.trim());
+    let url;
+
+    if (isDOI) {
+      const doi = q.replace(/^doi:/i,'').trim();
+      url = `https://api.semanticscholar.org/graph/v1/paper/${encodeURIComponent(doi)}?fields=paperId,title,authors,year,abstract,openAccessPdf,externalIds,fieldsOfStudy,citationCount,isOpenAccess,url`;
+    } else {
+      url = `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(q)}&fields=paperId,title,authors,year,abstract,openAccessPdf,externalIds,fieldsOfStudy,citationCount,isOpenAccess,url&limit=25`;
+    }
+
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('API error ' + resp.status);
+    const data = await resp.json();
+
+    if (isDOI) {
+      paperResults = data.paperId ? [data] : [];
+    } else {
+      paperResults = data.data || [];
+    }
+
+    renderPaperResults();
+  } catch(e) {
+    res.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#c00;text-align:center;padding:44px 20px;">
+      <i class="fa-solid fa-triangle-exclamation"></i>  Search failed: ${e.message}<br><br>
+      <span style="color:#aaa;font-size:10px;">Tip: Check your network connection. Semantic Scholar API is free and requires no key.</span>
+    </div>`;
+  }
+}
+
+function renderPaperResults() {
+  const res = ge('paper-results');
+  let list = paperResults;
+
+  if (paperFilter === 'open') list = list.filter(p => p.isOpenAccess);
+  if (paperFilter === 'pdf')  list = list.filter(p => p.openAccessPdf?.url);
+
+  ge('paper-count').textContent = `${list.length} result${list.length !== 1 ? 's' : ''}`;
+
+  if (!list.length) {
+    res.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#aaa;text-align:center;padding:44px 0;">No results found. Try a different query or filter.</div>';
+    return;
+  }
+
+  res.innerHTML = list.map((p, i) => {
+    const authors = (p.authors||[]).slice(0,4).map(a=>a.name).join(', ') + ((p.authors||[]).length > 4 ? ' et al.' : '');
+    const doi     = p.externalIds?.DOI || '';
+    const hasPdf  = !!p.openAccessPdf?.url;
+    const fields  = (p.fieldsOfStudy||[]).slice(0,3).map(f=>`<span class="pr-badge">${f}</span>`).join('');
+
+    return `<div class="pr-card">
+      <div class="pr-title">${escX(p.title||'Untitled')}</div>
+      <div class="pr-authors">${escX(authors)||'Unknown authors'} ${p.year ? '· '+p.year : ''}</div>
+      <div class="pr-meta">
+        ${p.isOpenAccess ? '<span class="pr-badge open">Open Access</span>' : '<span class="pr-badge">Closed Access</span>'}
+        ${hasPdf ? '<span class="pr-badge pdf">📄 PDF Available</span>' : ''}
+        ${p.citationCount != null ? `<span class="pr-badge">↗ ${p.citationCount} citations</span>` : ''}
+        ${doi ? `<span class="pr-badge">DOI: ${escX(doi)}</span>` : ''}
+        ${fields}
+      </div>
+      ${p.abstract ? `<div class="pr-abstract">${escX(p.abstract)}</div>` : ''}
+      <div class="pr-actions">
+        ${hasPdf ? `<button class="pr-btn primary" onclick="openPaperPdf(${i})"><i class="fa-solid fa-file-pdf"></i> Open PDF</button>` : ''}
+        ${p.url ? `<button class="pr-btn" onclick="window.open('${p.url}','_blank')"><i class="fa-solid fa-arrow-up-right-from-square"></i> Semantic Scholar</button>` : ''}
+        ${doi ? `<button class="pr-btn" onclick="window.open('https://doi.org/${encodeURIComponent(doi)}','_blank')"><i class="fa-solid fa-link"></i> DOI Link</button>` : ''}
+        <button class="pr-btn" onclick="savePaperMeta(${i})"><i class="fa-solid fa-bookmark"></i> Save to Research</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openPaperPdf(idx) {
+  const p = (paperFilter === 'open'  ? paperResults.filter(x=>x.isOpenAccess) :
+             paperFilter === 'pdf'   ? paperResults.filter(x=>x.openAccessPdf?.url) :
+             paperResults)[idx];
+  if (!p?.openAccessPdf?.url) { toast('No PDF available','This paper has no open-access PDF link','ERROR'); return; }
+
+  currentPaperPdf = {
+    url:   p.openAccessPdf.url,
+    title: p.title || 'Untitled',
+    paper: p
+  };
+
+  cl('m-paper-search');
+  showPdfPanel(p.openAccessPdf.url, p.title, p);
+}
+
+function savePaperMeta(idx) {
+  const list = paperFilter === 'open'  ? paperResults.filter(x=>x.isOpenAccess)  :
+               paperFilter === 'pdf'   ? paperResults.filter(x=>x.openAccessPdf?.url) :
+               paperResults;
+  const p = list[idx];
+  if (!p) return;
+  const authors = (p.authors||[]).map(a=>a.name).join(', ');
+  const doi     = p.externalIds?.DOI || '';
+  const content = [
+    `Title: ${p.title}`,
+    `Authors: ${authors}`,
+    `Year: ${p.year||'Unknown'}`,
+    doi ? `DOI: ${doi}` : '',
+    p.url ? `Link: ${p.url}` : '',
+    p.isOpenAccess ? 'Access: Open Access' : 'Access: Closed Access',
+    p.openAccessPdf?.url ? `PDF: ${p.openAccessPdf.url}` : '',
+    '',
+    'Abstract:',
+    p.abstract || 'No abstract available.',
+    '',
+    `Fields: ${(p.fieldsOfStudy||[]).join(', ')}`,
+    `Citations: ${p.citationCount ?? 'Unknown'}`,
+  ].filter(l=>l!==undefined).join('\n');
+
+  popFolderSel('paper-save-folder-sel');
+  // Ask which folder via a tiny inline prompt
+  const fid = ge('paper-save-folder-sel') ? ge('paper-save-folder-sel').value : '__root__';
+  resFiles.unshift({
+    id: Date.now(), type: 'note',
+    name: (p.title||'Paper').slice(0,80),
+    folderId: fid,
+    content, tags: (p.fieldsOfStudy||[]).join(', '),
+    doi, authors, year: p.year,
+    date: new Date().toISOString()
+  });
+  saveResData();
+  toast((p.title||'Paper').slice(0,50)+'…', 'Saved metadata to Research','PAPER SAVED');
+}
+
+// ── DOC VIEWER (PDF, text, code, markdown, image — all with highlights) ────────
+
+// Config
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+// State
+let pdfDoc      = null;
+let pdfPage     = 1;
+let pdfScale    = 1.6;
+let hlMode      = false;
+let highlights  = [];
+let pdfMeta     = {};      // {title, paper, url, fileId, docType}
+let isSelecting = false;
+let selStart    = null;
+let _selBox     = null;
+
+// ── Entry point for ALL file types ────────────────────────────────────────────
+function showDocViewer(fileId) {
+  const f = resFiles.find(x => x.id === fileId);
+  if (!f) return;
+
+  // Determine document type
+  const name = (f.name || '').toLowerCase();
+  const ft   = (f.fileType || '').toLowerCase();
+  let docType;
+
+  if (f.type === 'paper' && f.pdfUrl) {
+    docType = 'pdf-url';
+  } else if (ft.startsWith('image/') || name.match(/\.(png|jpe?g|gif|webp|svg)$/)) {
+    docType = 'image';
+  } else if (ft === 'application/pdf' || name.endsWith('.pdf')) {
+    docType = 'pdf-b64';
+  } else {
+    docType = 'text';
+  }
+
+  // Reset state
+  pdfDoc  = null; pdfPage = 1; hlMode  = false;
+  pdfMeta = { title: f.name, url: f.pdfUrl || '', fileId: f.id, docType, paper: f.paper || {} };
+
+  // Restore saved highlights
+  highlights = [];
+  if (f.highlights && f.highlights.length) {
+    highlights = f.highlights.map(h => ({
+      id:    h.id    || (Date.now() + Math.random()),
+      page:  h.page  || 1,
+      x:     h.x,    y: h.y,
+      w:     h.w,
+      h:     h.h !== undefined ? h.h : (h.h2 || 20),
+      color: h.color || '#FFE066',
+      note:  h.note  || '',
+      // text highlights (for text/code view)
+      selStart: h.selStart,
+      selEnd:   h.selEnd,
+      lineIdx:  h.lineIdx
+    }));
+  }
+
+  // Show panel
+  const panel = ge('pdf-panel');
+  panel.style.display = 'flex';
+  ge('pdf-title-label').textContent = f.name;
+  ge('hlbtn').style.cssText = '';
+  ge('pdf-canvas-wrap').style.cursor = 'default';
+
+  // Show/hide page nav (only for PDFs)
+  const showPages = docType === 'pdf-url' || docType === 'pdf-b64';
+  ['pdf-prev','pdf-next','pdf-page-info','pdf-page-sep'].forEach(id => {
+    const el = ge(id); if (el) el.style.display = showPages ? '' : 'none';
+  });
+
+  popFolderSel('pdf-save-folder');
+  if (f.folderId) { const sel = ge('pdf-save-folder'); if (sel) sel.value = f.folderId; }
+
+  renderHlList();
+
+  // Dispatch to type-specific renderer
+  if (docType === 'pdf-url')  { loadPdfFromUrl(f.pdfUrl); }
+  else if (docType === 'pdf-b64') { loadPdfFromBase64(f.content); }
+  else if (docType === 'image')   { renderImageViewer(f); }
+  else                             { renderTextViewer(f); }
+}
+
+// Alias for backward-compat (paper search still calls showPdfPanel)
+function showPdfPanel(pdfUrl, title, paper, fileId) {
+  // Build a minimal file object and delegate
+  if (fileId) {
+    showDocViewer(fileId);
+    return;
+  }
+  // New paper not yet saved — open inline without fileId
+  pdfMeta = { title, paper: paper||{}, url: pdfUrl, fileId: null, docType: 'pdf-url' };
+  pdfDoc  = null; pdfPage = 1; hlMode  = false; highlights = [];
+  const panel = ge('pdf-panel');
+  panel.style.display = 'flex';
+  ge('pdf-title-label').textContent = title || 'PDF';
+  ge('hlbtn').style.cssText = '';
+  ['pdf-prev','pdf-next','pdf-page-info','pdf-page-sep'].forEach(id=>{const el=ge(id);if(el)el.style.display='';});
+  popFolderSel('pdf-save-folder');
+  renderHlList();
+  loadPdfFromUrl(pdfUrl);
+}
+
+// ── PDF loaders ───────────────────────────────────────────────────────────────
+async function loadPdfFromUrl(url) {
+  const wrap = ge('pdf-canvas-wrap');
+  wrap.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#666;padding:40px;text-align:center;"><i class="fa-solid fa-circle-notch fa-spin"></i>  Loading PDF…</div>`;
+  if (typeof pdfjsLib === 'undefined') { wrap.innerHTML = '<div style="color:#c00;padding:40px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;">PDF.js not loaded.</div>'; return; }
+  try {
+    const proxied = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    pdfDoc = await pdfjsLib.getDocument({ url: proxied, cMapUrl:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/', cMapPacked:true }).promise;
+    await renderPdfPage(pdfPage);
+  } catch(e) {
+    wrap.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#c00;padding:40px;text-align:center;max-width:480px;margin:0 auto;">
+      <i class="fa-solid fa-triangle-exclamation" style="font-size:22px;display:block;margin-bottom:10px;"></i>
+      <strong>Could not load PDF</strong><br><br>
+      <span style="color:#666;line-height:1.7">CORS restrictions may block direct loading.<br>
+      Try opening it in a new tab or uploading the file.</span><br><br>
+      <a href="${url}" target="_blank" style="background:#111;color:#fff;padding:6px 12px;border-radius:3px;text-decoration:none;font-size:10px;display:inline-flex;align-items:center;gap:4px;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open in new tab</a>
+      <br><br><span style="font-size:9px;color:#aaa;">${e.message}</span>
+    </div>`;
+  }
+}
+
+async function loadPdfFromBase64(b64content) {
+  const wrap = ge('pdf-canvas-wrap');
+  wrap.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#666;padding:40px;text-align:center;"><i class="fa-solid fa-circle-notch fa-spin"></i>  Rendering PDF…</div>`;
+  if (typeof pdfjsLib === 'undefined') { wrap.innerHTML = '<div style="color:#c00;padding:40px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;">PDF.js not loaded.</div>'; return; }
+  try {
+    let data;
+    if (b64content && b64content.startsWith('data:')) {
+      // File was read as dataURL (our new upload path)
+      const base64 = b64content.split(',')[1];
+      const bin = atob(base64);
+      data = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) data[i] = bin.charCodeAt(i);
+    } else if (b64content && b64content.startsWith('%PDF')) {
+      // Raw PDF text (old upload path via readAsText — shouldn't happen for PDFs now)
+      data = new TextEncoder().encode(b64content);
+    } else {
+      // Treat as raw base64 string
+      try {
+        const bin = atob(b64content);
+        data = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) data[i] = bin.charCodeAt(i);
+      } catch {
+        data = new TextEncoder().encode(b64content);
+      }
+    }
+    pdfDoc = await pdfjsLib.getDocument({
+      data,
+      cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+      cMapPacked: true
+    }).promise;
+    await renderPdfPage(pdfPage);
+  } catch(e) {
+    wrap.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#c00;padding:40px;text-align:center;max-width:440px;margin:0 auto;">
+      <i class="fa-solid fa-triangle-exclamation" style="font-size:22px;display:block;margin-bottom:10px;"></i>
+      <strong>Could not render PDF</strong><br><br>
+      <span style="color:#666;line-height:1.7">The file may be corrupted or in an unsupported format.</span>
+      <br><br><span style="font-size:9px;color:#aaa;">${e.message}</span>
+    </div>`;
+  }
+}
+
+// ── PDF page renderer ─────────────────────────────────────────────────────────
+async function renderPdfPage(num) {
+  if (!pdfDoc) return;
+  const wrap = ge('pdf-canvas-wrap');
+  const page = await pdfDoc.getPage(num);
+  const vp   = page.getViewport({ scale: pdfScale });
+  wrap.innerHTML = '';
+
+  const pageWrap = document.createElement('div');
+  pageWrap.style.cssText = `position:relative;width:${vp.width}px;height:${vp.height}px;box-shadow:0 2px 16px rgba(0,0,0,.15);flex-shrink:0;`;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = vp.width; canvas.height = vp.height;
+  canvas.style.cssText = 'display:block;';
+
+  // Text layer — invisible overlay for text selection only
+  const textDiv = document.createElement('div');
+  textDiv.className = 'pdfjs-text-layer';
+  textDiv.style.cssText = `position:absolute;top:0;left:0;width:${vp.width}px;height:${vp.height}px;overflow:hidden;opacity:1;line-height:1;pointer-events:${hlMode?'none':'auto'};`;
+
+  const hlLayer = document.createElement('div');
+  hlLayer.id = 'hl-layer';
+  hlLayer.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:20;';
+
+  pageWrap.append(canvas, textDiv, hlLayer);
+  wrap.appendChild(pageWrap);
+
+  // Inline style that makes text layer spans invisible but selectable
+  const sty = document.createElement('style');
+  sty.textContent = `
+    .pdfjs-text-layer span,
+    .pdfjs-text-layer br {
+      color: transparent !important;
+      position: absolute;
+      white-space: pre;
+      cursor: text;
+      transform-origin: 0% 0%;
+      -webkit-font-smoothing: antialiased;
+    }
+    .pdfjs-text-layer ::selection { background: rgba(0,100,255,0.2); }
+    .pdfjs-text-layer .highlight { background: rgba(180,0,170,0.2); }
+  `;
+  document.head.appendChild(sty);
+
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+
+  // Render text layer for selection (silently ignore if API differs between PDF.js versions)
+  try {
+    const tc = await page.getTextContent();
+    const renderTask = pdfjsLib.renderTextLayer({
+      textContentSource: tc,
+      container: textDiv,
+      viewport: vp,
+      textDivs: []
     });
-    tx.oncomplete=loadNotes;
+    if (renderTask && renderTask.promise) await renderTask.promise;
+  } catch(e) {
+    // Text layer optional — PDF still displays correctly without it
+    textDiv.style.display = 'none';
+  }
+
+  ge('pdf-page-info').textContent = `Page ${num} / ${pdfDoc.numPages}`;
+  renderPageHighlights(num, hlLayer);
+  setupDragSelect(pageWrap, hlLayer, num, 'pdf');
 }
 
-function loadNotes(){
-    if(!activeFolder) return;
+// ── Image viewer ──────────────────────────────────────────────────────────────
+function renderImageViewer(f) {
+  const wrap = ge('pdf-canvas-wrap');
+  wrap.innerHTML = '';
 
-    const tx=db.transaction("highlights","readonly");
-    tx.objectStore("highlights").getAll().onsuccess=e=>{
-        const all=e.target.result;
-        const filtered=all.filter(h=>h.folderId===activeFolder);
+  const cont = document.createElement('div');
+  cont.style.cssText = 'position:relative;display:inline-block;box-shadow:0 2px 16px rgba(0,0,0,.15);background:#fff;';
 
-        document.getElementById("notes").innerHTML=
-            filtered.map(h=>`
-                <div class="snippet">
-                    <div>${h.content}</div>
-                    <small>${new Date(h.date).toLocaleString()}</small>
-                </div>
-            `).join('');
+  const img = document.createElement('img');
+  img.style.cssText = 'display:block;max-width:min(860px, calc(100vw - 340px));max-height:calc(100vh - 120px);object-fit:contain;';
+  // content is a dataURL for uploaded images; url for linked images
+  img.src = (f.content && f.content.startsWith('data:')) ? f.content : (f.url || f.content || '');
+  img.alt = f.name;
+
+  const hlLayer = document.createElement('div');
+  hlLayer.id = 'hl-layer';
+  hlLayer.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:20;';
+
+  cont.append(img, hlLayer);
+  wrap.appendChild(cont);
+
+  ge('pdf-page-info').textContent = 'Image';
+
+  const init = () => {
+    renderPageHighlights(1, hlLayer);
+    setupDragSelect(cont, hlLayer, 1, 'image');
+  };
+  img.onload = init;
+  if (img.complete && img.naturalWidth) init();
+}
+
+// ── Text / code / markdown viewer ────────────────────────────────────────────
+function renderTextViewer(f) {
+  const wrap = ge('pdf-canvas-wrap');
+  wrap.innerHTML = '';
+
+  const content = f.content || '';
+  const lines   = content.split('\n');
+  const isCode  = (f.name||'').match(/\.(js|ts|py|java|c|cpp|cs|go|rs|php|rb|sh|json|xml|yaml|yml|md|html|css|txt|drawio)$/i);
+
+  const outer = document.createElement('div');
+  outer.style.cssText = 'width:100%;max-width:900px;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.12);border-radius:3px;overflow:hidden;';
+
+  // Title bar
+  const titlebar = document.createElement('div');
+  titlebar.style.cssText = 'background:#f8f8f8;border-bottom:1px solid #e0e0e0;padding:8px 14px;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#aaa;display:flex;justify-content:space-between;';
+  titlebar.innerHTML = `<span>${escX(f.name)}</span><span>${lines.length} lines</span>`;
+  outer.appendChild(titlebar);
+
+  // Lines container
+  const linesWrap = document.createElement('div');
+  linesWrap.id = 'text-lines';
+  linesWrap.style.cssText = 'padding:16px 0;overflow:visible;';
+
+  lines.forEach((line, i) => {
+    const row = document.createElement('div');
+    row.className = 'txt-line';
+    row.dataset.lineIdx = i;
+    row.style.cssText = 'display:flex;min-height:20px;font-family:\'JetBrains Mono\',monospace;font-size:12px;line-height:1.6;position:relative;';
+
+    const num = document.createElement('span');
+    num.style.cssText = 'width:44px;min-width:44px;text-align:right;padding-right:16px;color:#ccc;user-select:none;font-size:10px;padding-top:1px;';
+    num.textContent = i + 1;
+
+    const text = document.createElement('span');
+    text.className = 'txt-content';
+    text.dataset.lineIdx = i;
+    text.style.cssText = 'flex:1;padding:0 16px;white-space:pre-wrap;word-break:break-all;color:#222;cursor:text;';
+    text.textContent = line || ' ';
+
+    row.append(num, text);
+    linesWrap.appendChild(row);
+  });
+
+  outer.appendChild(linesWrap);
+  wrap.appendChild(outer);
+
+  ge('pdf-page-info').textContent = `${lines.length} lines`;
+
+  // Apply saved highlights for text
+  applyTextHighlights();
+
+  // Setup line-click highlighting
+  setupTextHighlight(linesWrap);
+}
+
+function setupTextHighlight(linesWrap) {
+  let selecting = false;
+  let startLine = -1;
+
+  linesWrap.addEventListener('mousedown', e => {
+    if (!hlMode) return;
+    const lineEl = e.target.closest('.txt-line');
+    if (!lineEl) return;
+    selecting  = true;
+    startLine  = parseInt(lineEl.dataset.lineIdx);
+    e.preventDefault();
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (!selecting || !hlMode) { selecting = false; return; }
+    selecting = false;
+    const lineEl = e.target.closest ? e.target.closest('.txt-line') : null;
+    const endLine = lineEl ? parseInt(lineEl.dataset.lineIdx) : startLine;
+    const lo = Math.min(startLine, endLine);
+    const hi = Math.max(startLine, endLine);
+    if (lo < 0) return;
+
+    const color = ge('hl-color').value;
+    const lines = document.querySelectorAll('.txt-line');
+    let text = '';
+    for (let i = lo; i <= hi; i++) {
+      const el = lines[i];
+      if (el) text += (el.querySelector('.txt-content')?.textContent || '') + '\n';
+    }
+    const hl = { id: Date.now() + Math.random(), page: 1, lineStart: lo, lineEnd: hi, color, note: '', text: text.trim(), selStart: lo, selEnd: hi };
+    highlights.push(hl);
+    applyTextHighlights();
+    renderHlList();
+    persistHighlights();
+  });
+}
+
+function applyTextHighlights() {
+  // Clear all existing line highlights
+  document.querySelectorAll('.txt-line').forEach(el => {
+    el.style.background = '';
+  });
+  // Apply current highlights
+  highlights.filter(h => h.lineStart !== undefined || h.selStart !== undefined).forEach(h => {
+    const lo = h.lineStart !== undefined ? h.lineStart : h.selStart;
+    const hi = h.lineEnd   !== undefined ? h.lineEnd   : h.selEnd;
+    document.querySelectorAll('.txt-line').forEach(el => {
+      const idx = parseInt(el.dataset.lineIdx);
+      if (idx >= lo && idx <= hi) el.style.background = h.color + '66';
+    });
+  });
+}
+
+// ── Shared drag-select for PDF and image highlights ───────────────────────────
+function setupDragSelect(pageWrap, hlLayer, pageNum, mode) {
+  let sx, sy;
+
+  pageWrap.addEventListener('mousedown', e => {
+    if (!hlMode) return;
+    const rect = pageWrap.getBoundingClientRect();
+    sx = e.clientX - rect.left; sy = e.clientY - rect.top;
+    isSelecting = true;
+    if (_selBox) _selBox.remove();
+    _selBox = document.createElement('div');
+    _selBox.style.cssText = 'position:absolute;border:1.5px dashed #000;pointer-events:none;z-index:30;background:rgba(0,0,0,0.04);';
+    pageWrap.appendChild(_selBox);
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!isSelecting || !_selBox) return;
+    const rect = pageWrap.getBoundingClientRect();
+    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    const x = Math.min(sx, cx), y = Math.min(sy, cy);
+    Object.assign(_selBox.style, { left: x+'px', top: y+'px', width: Math.abs(cx-sx)+'px', height: Math.abs(cy-sy)+'px' });
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (!isSelecting) return;
+    isSelecting = false;
+    const rect = pageWrap.getBoundingClientRect();
+    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    const x = Math.min(sx, cx), y = Math.min(sy, cy);
+    const w = Math.abs(cx - sx), h = Math.abs(cy - sy);
+    if (_selBox) { _selBox.remove(); _selBox = null; }
+    if (w < 8 || h < 8) return;
+    const color = ge('hl-color').value;
+    highlights.push({ id: Date.now() + Math.random(), page: pageNum, x, y, w, h, color, note: '', text: '' });
+    renderPageHighlights(pageNum, hlLayer);
+    renderHlList();
+    persistHighlights();
+  });
+}
+
+// ── Render highlights as coloured rectangles on a layer ───────────────────────
+function renderPageHighlights(pageNum, hlLayer) {
+  if (!hlLayer) hlLayer = ge('hl-layer');
+  if (!hlLayer) return;
+  hlLayer.innerHTML = '';
+  highlights.filter(h => h.page === pageNum && h.x !== undefined).forEach(h => {
+    const div = document.createElement('div');
+    div.className = 'hl-rect';
+    div.style.cssText = `left:${h.x}px;top:${h.y}px;width:${h.w}px;height:${h.h}px;background:${h.color};`;
+    div.title = h.note || '';
+    div.onclick = () => {
+      ge('hl-note').value = h.note || '';
+      ge('hl-note').oninput = () => { h.note = ge('hl-note').value; renderHlList(); persistHighlights(); };
+      renderHlList(h.id);
     };
+    hlLayer.appendChild(div);
+  });
 }
+
+// ── Highlights sidebar ────────────────────────────────────────────────────────
+function renderHlList(activeId) {
+  const list = ge('hl-list');
+  ge('hl-count').textContent = highlights.length;
+  if (!highlights.length) {
+    list.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#aaa;text-align:center;padding:20px 10px;">No highlights.<br><br>Enable <strong>Highlight</strong> mode then drag to select an area, or click lines in text files.</div>`;
+    return;
+  }
+  list.innerHTML = highlights.map(h => {
+    const label = h.lineStart !== undefined
+      ? `Lines ${h.lineStart+1}–${h.lineEnd+1}`
+      : `Page ${h.page}`;
+    return `<div style="border:1px solid ${activeId===h.id?'#111':'#e0e0e0'};border-left:3px solid ${h.color};border-radius:2px;padding:8px 10px;margin-bottom:5px;cursor:pointer;background:${activeId===h.id?'#f8f8f8':'#fff'};"
+       onclick="jumpToHl(${h.id})">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#aaa;">${label}</span>
+        <button onclick="event.stopPropagation();removeHighlight(${h.id})" style="background:none;border:none;color:#c00;cursor:pointer;font-size:11px;line-height:1;padding:0 2px;">✕</button>
+      </div>
+      <div style="width:100%;height:8px;background:${h.color};border-radius:1px;opacity:.7;margin-bottom:4px;"></div>
+      ${h.text?`<div style="font-size:10px;color:#555;font-family:'JetBrains Mono',monospace;line-height:1.4;max-height:40px;overflow:hidden;">${escX(h.text.slice(0,80))}${h.text.length>80?'…':''}</div>`:''}
+      ${h.note?`<div style="font-size:10px;color:#333;margin-top:3px;border-top:1px solid #eee;padding-top:3px;">${escX(h.note)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function jumpToHl(id) {
+  const h = highlights.find(x => x.id === id);
+  if (!h) return;
+  // For PDFs: navigate to the right page
+  if ((pdfMeta.docType==='pdf-url'||pdfMeta.docType==='pdf-b64') && h.page && h.page !== pdfPage) {
+    pdfPage = h.page; renderPdfPage(pdfPage);
+  }
+  // For text: scroll the line into view
+  if (h.lineStart !== undefined) {
+    const el = document.querySelectorAll('.txt-line')[h.lineStart];
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  ge('hl-note').value = h.note || '';
+  ge('hl-note').oninput = () => { h.note = ge('hl-note').value; renderHlList(id); persistHighlights(); };
+  renderHlList(id);
+}
+
+function removeHighlight(id) {
+  highlights = highlights.filter(h => h.id !== id);
+  // Refresh whatever is currently visible
+  const hlLayer = ge('hl-layer');
+  if (hlLayer) renderPageHighlights(pdfPage, hlLayer);
+  applyTextHighlights();
+  renderHlList();
+  persistHighlights();
+}
+
+function toggleHighlight() {
+  hlMode = !hlMode;
+  const btn = ge('hlbtn');
+  if (hlMode) {
+    btn.style.cssText = 'background:#FFE066;border:1px solid #c8a800;border-radius:3px;padding:5px 10px;font-family:\'JetBrains Mono\',monospace;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;color:#000;';
+    ge('pdf-canvas-wrap').style.cursor = 'crosshair';
+  } else {
+    btn.style.cssText = 'background:none;border:1px solid #e0e0e0;border-radius:3px;padding:5px 10px;font-family:\'JetBrains Mono\',monospace;font-size:10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;';
+    ge('pdf-canvas-wrap').style.cursor = 'default';
+  }
+  // Re-render to toggle pointer-events on text layer
+  if (pdfDoc) renderPdfPage(pdfPage);
+}
+
+function clearHighlights() {
+  if (!highlights.length) return;
+  if (!confirm('Clear all highlights on this document?')) return;
+  highlights = [];
+  const hlLayer = ge('hl-layer');
+  if (hlLayer) hlLayer.innerHTML = '';
+  applyTextHighlights();
+  renderHlList();
+  persistHighlights();
+}
+
+function pdfPrevPage() { if (!pdfDoc || pdfPage <= 1) return; pdfPage--; renderPdfPage(pdfPage); }
+function pdfNextPage() { if (!pdfDoc || pdfPage >= pdfDoc.numPages) return; pdfPage++; renderPdfPage(pdfPage); }
+
+function closeDocViewer() {
+  ge('pdf-panel').style.display = 'none';
+  pdfDoc = null; pdfPage = 1; highlights = []; hlMode = false;
+}
+// Backward compat alias
+function closePdfPanel() { closeDocViewer(); }
+
+// ── Persist highlights to localStorage ───────────────────────────────────────
+function persistHighlights() {
+  if (!pdfMeta.fileId) return;
+  const idx = resFiles.findIndex(f => f.id === pdfMeta.fileId);
+  if (idx === -1) return;
+  resFiles[idx].highlights = highlights.map(h => ({
+    id: h.id, page: h.page, x: h.x, y: h.y, w: h.w, h: h.h,
+    color: h.color, note: h.note, text: h.text || '',
+    lineStart: h.lineStart, lineEnd: h.lineEnd,
+    selStart: h.selStart, selEnd: h.selEnd
+  }));
+  localStorage.setItem('res_files', JSON.stringify(resFiles));
+}
+
+// ── Save / update research entry ─────────────────────────────────────────────
+async function saveDocHighlights() {
+  const fid = ge('pdf-save-folder').value || '__root__';
+  const hlData = highlights.map(h => ({
+    id: h.id, page: h.page, x: h.x, y: h.y, w: h.w, h: h.h,
+    color: h.color, note: h.note, text: h.text || '',
+    lineStart: h.lineStart, lineEnd: h.lineEnd,
+    selStart: h.selStart, selEnd: h.selEnd
+  }));
+
+  if (pdfMeta.fileId) {
+    // Update existing file — just update highlights + folder
+    const idx = resFiles.findIndex(f => f.id === pdfMeta.fileId);
+    if (idx !== -1) {
+      resFiles[idx].highlights = hlData;
+      resFiles[idx].folderId   = fid;
+      saveResData();
+      toast((pdfMeta.title||'').slice(0,48), `${hlData.length} highlight${hlData.length!==1?'s':''} saved`, 'HIGHLIGHTS SAVED');
+      return;
+    }
+  }
+
+  // New file (opened from paper search, not yet saved)
+  const p = pdfMeta.paper || {};
+  const newId = Date.now();
+  resFiles.unshift({
+    id: newId, type: 'paper',
+    name: (pdfMeta.title || 'Document').slice(0, 80),
+    folderId: fid,
+    pdfUrl: pdfMeta.url,
+    highlights: hlData,
+    authors: (p.authors||[]).map(a=>a.name).join(', '),
+    doi: p.externalIds?.DOI || '',
+    year: p.year,
+    tags: (p.fieldsOfStudy||[]).join(', '),
+    date: new Date().toISOString()
+  });
+  pdfMeta.fileId = newId;
+  saveResData();
+  toast((pdfMeta.title||'').slice(0,48), `Saved with ${hlData.length} highlight${hlData.length!==1?'s':''}`, 'SAVED');
+}
+
+// Keep old name as alias
+async function savePdfToResearch() { await saveDocHighlights(); }
 
 </script>
-
 </body>
 </html>
